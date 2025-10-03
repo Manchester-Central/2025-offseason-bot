@@ -13,6 +13,9 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Amps;
+
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.RobotBase;
 
 /**
@@ -33,5 +36,38 @@ public final class Constants {
 
     /** Replaying from a log file. */
     REPLAY
+  }
+
+  /** This contains all of our constants for CAN IDs and Can Bus Names. */
+  public static class CanIdentifiers {
+    // public static final String CTRECANBus = "CTRE bus";
+    public static final String RioCANBus = "rio";
+
+    // Swerve (30s & 40s)
+    // public static final int FLSpeedCANID = 30;
+    // public static final int FLAngleCANID = 31;
+    // public static final int FLAbsoEncoCANID = 32;
+    // public static final int FRSpeedCANID = 33;
+    // public static final int FRAngleCANID = 34;
+    // public static final int FRAbsoEncoCANID = 35;
+    // public static final int BLSpeedCANID = 39;
+    // public static final int BLAngleCANID = 40;
+    // public static final int BLAbsoEncoCANID = 41;
+    // public static final int BRSpeedCANID = 36;
+    // public static final int BRAngleCANID = 37;
+    // public static final int BRAbsoEncoCANID = 38;
+    // public static final int GyroCANID = 45;
+
+    // Base Pivot (20s)
+    public static final int BasePivotMotorCANID = 20;
+    public static final int BasePivotCANcoderCANID = 21;
+
+    // Gripper (70s)
+    public static final int GripperMotorCANID = 52; // TODO: set on robot
+  }
+  public static class GripperConstants {
+
+    public static final Current SupplyCurrentLimit = Amps.of(60); //TODO: double check the values soon...
+    public static final Current StatorCurrentLimit = Amps.of(60); //TODO: double check the values soon...
   }
 }
