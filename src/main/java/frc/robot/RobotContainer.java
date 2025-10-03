@@ -52,7 +52,7 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    m_quest = new Quest();
+   
     switch (Constants.currentMode) {
       case REAL:
         // Real robot, instantiate hardware IO implementations
@@ -87,7 +87,7 @@ public class RobotContainer {
                 new ModuleIO() {});
         break;
     }
-
+    m_quest = new Quest( m_swerveDrive);
     // Set up auto routines
     m_autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
