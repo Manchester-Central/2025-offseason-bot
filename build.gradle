@@ -69,8 +69,16 @@ task(replayWatch, type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
-def secretsFile = file("secrets.json")
-def secrets = new groovy.json.JsonSlurper().parseText(secretsFile.text)
+def sharedCodeUsername = System.getenv('GITHUB_ACTOR')
+def sharedCodePassword = System.getenv('GITHUB_TOKEN')
+try {
+    def secretsFile = file("secrets.json")
+    def secrets = new groovy.json.JsonSlurper().parseText(secretsFile.text)
+    sharedCodeUsername = secrets.github_package_auth.username
+    sharedCodePassword = secrets.github_package_auth.personal_access_token
+} catch (Exception e) {
+    System.out.println("Warning: Cannot find secrets file. Defaulting to environment variables.");
+}
 
 repositories {
     maven {
@@ -106,7 +114,7 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-    implementation 'com.chaos131:shared:2025.0.13'
+    implementation 'com.chaos131:shared:2025.0.14'
 
     def akitJson = new groovy.json.JsonSlurper().parseText(new File(projectDir.getAbsolutePath() + "/vendordeps/AdvantageKit.json").text)
     annotationProcessor "org.littletonrobotics.akit:akit-autolog:$akitJson.version"
