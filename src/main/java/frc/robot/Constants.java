@@ -13,6 +13,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.RobotBase;
 
 /**
@@ -33,5 +34,10 @@ public final class Constants {
 
     /** Replaying from a log file. */
     REPLAY
+  }
+  public static class QuestNavConstants {
+    public static final double RobotToQuestXInches = 2;
+    public static final double RobotToQuestYInches = 4;
+    public static final Rotation2d RobotToQuestRotation = new Rotation2d();
   }
 }
