@@ -84,8 +84,8 @@ repositories {
     maven {
         url = uri("https://maven.pkg.github.com/Manchester-Central/CHAOS-Shared-Code")
         credentials {
-            username = secrets.github_package_auth.username
-            password = secrets.github_package_auth.personal_access_token
+            username = sharedCodeUsername
+            password = sharedCodePassword
         }
     }
 }
