@@ -16,6 +16,7 @@ package frc.robot;
 import static edu.wpi.first.units.Units.Amps;
 
 import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.RobotBase;
 
 /**
@@ -69,5 +70,9 @@ public final class Constants {
 
     public static final Current SupplyCurrentLimit = Amps.of(60); //TODO: double check the values soon...
     public static final Current StatorCurrentLimit = Amps.of(60); //TODO: double check the values soon...
+  public static class QuestNavConstants {
+    public static final double RobotToQuestXInches = 2;
+    public static final double RobotToQuestYInches = 4;
+    public static final Rotation2d RobotToQuestRotation = new Rotation2d();
   }
 }
