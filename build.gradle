@@ -69,8 +69,8 @@ task(replayWatch, type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
-def sharedCodeUsername = System.getenv('GITHUB_ACTOR')
-def sharedCodePassword = System.getenv('GITHUB_TOKEN')
+def sharedCodeUsername = System.getenv('CHAOS_PACKAGE_USERNAME')
+def sharedCodePassword = System.getenv('CHAOS_PACKAGE_PASSWORD')
 try {
     def secretsFile = file("secrets.json")
     def secrets = new groovy.json.JsonSlurper().parseText(secretsFile.text)
