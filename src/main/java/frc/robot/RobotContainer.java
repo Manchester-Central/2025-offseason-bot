@@ -19,8 +19,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
-import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -33,6 +31,10 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+
+import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
+import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
+import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -48,14 +50,23 @@ public class RobotContainer {
 
   // Controller
   private final Gamepad m_driver = new Gamepad(0);
-  private final Mechanism2d m_mechanism2d = new Mechanism2d(0, 0);
-  private final MechanismRoot2d m_MechanismRoot2d = m_mechanism2d.getRoot(null, 0, 0);
+
+  // Mechanism2d Simulation Support
+  private final LoggedMechanism2d m_mechanism2d = new LoggedMechanism2d(0, 0);
+  private final LoggedMechanismRoot2d m_mechanismRoot2d = m_mechanism2d.getRoot("ArmRoot", 0, 0);
+  private final LoggedMechanismLigament2d m_originToPivot =
+      m_mechanismRoot2d.append(new LoggedMechanismLigament2d("Supports", 0.4, 90));
+  //                                                                          meters,   degrees
+  private final LoggedMechanismLigament2d m_armLigament =
+      m_originToPivot.append(new LoggedMechanismLigament2d("Arm", 0.6, 0));
+  private final LoggedMechanismLigament2d m_gripperLigament = 
+      m_armLigament.append(new LoggedMechanismLigament2d("Gripper", 0.2, 0));
+
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> m_autoChooser;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-   
     switch (Constants.currentMode) {
       case REAL:
         // Real robot, instantiate hardware IO implementations
@@ -90,7 +101,7 @@ public class RobotContainer {
                 new ModuleIO() {});
         break;
     }
-    m_quest = new Quest( m_swerveDrive);
+    m_quest = new Quest(m_swerveDrive);
     // Set up auto routines
     m_autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
