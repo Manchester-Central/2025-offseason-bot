@@ -70,6 +70,7 @@ public final class Constants {
 
     public static final Current SupplyCurrentLimit = Amps.of(60); //TODO: double check the values soon...
     public static final Current StatorCurrentLimit = Amps.of(60); //TODO: double check the values soon...
+  }
   public static class QuestNavConstants {
     public static final double RobotToQuestXInches = 2;
     public static final double RobotToQuestYInches = 4;

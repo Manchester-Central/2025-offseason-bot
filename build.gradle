@@ -69,15 +69,15 @@ task(replayWatch, type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
-def sharedCodeUsername = System.getenv('CHAOS_PACKAGE_USERNAME')
-def sharedCodePassword = System.getenv('CHAOS_PACKAGE_PASSWORD')
-try {
-    def secretsFile = file("secrets.json")
+def secretsFile = file("secrets.json")
+if (secretsFile.exists()) {
     def secrets = new groovy.json.JsonSlurper().parseText(secretsFile.text)
-    sharedCodeUsername = secrets.github_package_auth.username
-    sharedCodePassword = secrets.github_package_auth.personal_access_token
-} catch (Exception e) {
-    System.out.println("Warning: Cannot find secrets file. Defaulting to environment variables.");
+    project.ext.sharedCodeUsername = secrets.github_package_auth.username
+    project.ext.sharedCodePassword = secrets.github_package_auth.personal_access_token
+}
+else {
+    project.ext.sharedCodeUsername = System.getenv('CHAOS_PACKAGE_USERNAME')
+    project.ext.sharedCodePassword = System.getenv('CHAOS_PACKAGE_PASSWORD')
 }
 
 repositories {
