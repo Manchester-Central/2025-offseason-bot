@@ -19,6 +19,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -46,7 +48,8 @@ public class RobotContainer {
 
   // Controller
   private final Gamepad m_driver = new Gamepad(0);
-
+  private final Mechanism2d m_mechanism2d = new Mechanism2d(0, 0);
+  private final MechanismRoot2d m_MechanismRoot2d = m_mechanism2d.getRoot(null, 0, 0);
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> m_autoChooser;
 
