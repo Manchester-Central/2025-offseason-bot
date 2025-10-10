@@ -10,6 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     container: wpilib/roborio-cross-ubuntu:2024-22.04
     steps:
+      - name: Set environment variable from context
+        run: |
+          echo "CHAOS_PACKAGE_USERNAME=${{ vars.CHAOS_PACKAGE_USERNAME }}" >> $GITHUB_ENV
+          echo "CHAOS_PACKAGE_PASSWORD=${{ vars.CHAOS_PACKAGE_PASSWORD }}" >> $GITHUB_ENV
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Grant execute permission
