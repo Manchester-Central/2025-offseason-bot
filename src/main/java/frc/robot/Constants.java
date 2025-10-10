@@ -14,7 +14,9 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Degrees;
 
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -70,6 +72,17 @@ public final class Constants {
 
     public static final Current SupplyCurrentLimit = Amps.of(60); //TODO: double check the values soon...
     public static final Current StatorCurrentLimit = Amps.of(60); //TODO: double check the values soon...
+  }
+  public static class ArmConstants {
+    public static final Angle canCoderOffsetAngle = Degrees.of(0.0); //TODO: add real value to this...
+
+    public static final double kP = 0.0;
+    public static final double kI = 0.0;
+    public static final double kD = 0.0;
+    public static final double kG = 0.0;
+    public static final double kS = 0.0;
+    public static final double kV = 0.0;
+    public static final double kA = 0.0;
   }
   public static class QuestNavConstants {
     public static final double RobotToQuestXInches = 2;
