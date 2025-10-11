@@ -105,6 +105,10 @@ public class Module {
     return inputs.turnPosition;
   }
 
+  public Rotation2d getAngleAbsolute() {
+    return inputs.turnAbsolutePosition;
+  }
+
   /** Returns the current drive position of the module in meters. */
   public double getPositionMeters() {
     return inputs.drivePositionRad * constants.WheelRadius;
