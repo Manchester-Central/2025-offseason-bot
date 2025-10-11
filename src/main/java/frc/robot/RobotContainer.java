@@ -200,8 +200,14 @@ public class RobotContainer {
     // than many think are intuitive, +pitch is actually down because of the left facing +y direction
     Logger.recordOutput("Mech3d", parts);
 
-    // Coral held by the robot (shown as game piece)
-    Pose3d[] held_coral = {};
-    Logger.recordOutput("heldCoral", held_coral);
+    // Coral held by the robot (shown as game piece), must be in field relative coordinate frame
+    Pose3d[] held_coral_position = {};
+    if (m_gripper.hasCoral()) {
+      held_coral_position = new Pose3d[]{
+        // Insert Mech2d forward kinematics to get orientation, for now plot it at the origin
+        new Pose3d(new Translation3d(0,0,2.0), new Rotation3d())
+      };
+    } 
+    Logger.recordOutput("heldCoralPosition", held_coral_position);
   }
 }

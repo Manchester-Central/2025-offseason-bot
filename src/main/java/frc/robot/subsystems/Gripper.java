@@ -67,7 +67,7 @@ public class Gripper extends SubsystemBase {
     return m_hasCoralGripped; 
   }
 
-   /**                                                    //TODO: Add function and stuff...
+  /**                                                    //TODO: Add function and stuff...
    * Checks if there is a coral at the sensor.
    */
   // public boolean hasCoralNoDebounce() {
@@ -76,7 +76,6 @@ public class Gripper extends SubsystemBase {
 
   @Override
   public void periodic() {
-
     boolean currentLimitReached = m_gripperMotor.getStatorCurrent().getValue().gt(Amps.of(m_statorCurrentLimit.get() - 10.0));
     m_hasCoralGripped = currentLimitReached;
     //TODO: 
