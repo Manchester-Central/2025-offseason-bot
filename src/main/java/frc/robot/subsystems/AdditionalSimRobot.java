@@ -149,13 +149,13 @@ public class AdditionalSimRobot extends SubsystemBase {
             segment0.getStartingDifferentialPose().getTranslation(),
             segment0.getIdealStartingState().rotation());
 
-    // cycle.addCommands(opponentRobotFollowPath(segment0)
-    //         .andThen(toRunAtEndOfSegment0)
-    //         .withTimeout(10));
+    cycle.addCommands(opponentRobotFollowPath(segment0)
+            .andThen(toRunAtEndOfSegment0)
+            .withTimeout(10));
 
-    // cycle.addCommands(opponentRobotFollowPath(segment1)
-    //         .andThen(toRunAtEndOfSegment1)
-    //         .withTimeout(10));
+    cycle.addCommands(opponentRobotFollowPath(segment1)
+            .andThen(toRunAtEndOfSegment1)
+            .withTimeout(10));
 
     return cycle.repeatedly()
             .beforeStarting(Commands.runOnce(() -> swerveDriveSim.setSimulationWorldPose(
@@ -220,25 +220,26 @@ public class AdditionalSimRobot extends SubsystemBase {
                                          new PIDConstants(7.0, 0.05));
 
   /** Follow path command for opponent robots */
-  // private Command opponentRobotFollowPath(PathPlannerPath path) {
-  //   return new FollowPathCommand(
-  //     path, // Specify the path
-  //     // Provide actual robot pose in simulation, bypassing odometry error
-  //     () -> swerveDriveSim.getActualPoseInSimulationWorld(),
-  //     // Provide actual robot speed in simulation, bypassing encoder measurement error
-  //     () -> swerveDriveSim.getActualSpeedsRobotRelative(),
-  //     // Chassis speeds output
-  //     (speeds, feedforwards) -> 
-  //         driveSimulation.runChassisSpeeds(speeds, new Translation2d(), false, false),
-  //     driveController, // Specify PID controller
-  //     PP_CONFIG,       // Specify robot configuration
-  //     // Flip path based on alliance side
-  //     () -> DriverStation.getAlliance()
-  //         .orElse(DriverStation.Alliance.Blue)
-  //         .equals(DriverStation.Alliance.Red),
-  //     this // AIRobotInSimulation is a subsystem; this command should use it as a requirement
-  //   );
-  // }
+  private Command opponentRobotFollowPath(PathPlannerPath path) {
+    return new FollowPathCommand(
+      path, // Specify the path
+      // Provide actual robot pose in simulation, bypassing odometry error
+      () -> swerveDriveSim.getSimulatedDriveTrainPose(),
+      // Provide actual robot speed in simulation, bypassing encoder measurement error
+      () -> swerveDriveSim.getDriveTrainSimulatedChassisSpeedsRobotRelative(),
+      // Chassis speeds output
+      // (speeds, feedforwards) -> 
+      //   swerveDriveSim.runChassisSpeeds(speeds, new Translation2d(), false, false),
+      (speeds, _feedforwards) -> swerveDriveSim.setRobotSpeeds(speeds),
+      driveController, // Specify PID controller
+      PP_CONFIG,       // Specify robot configuration
+      // Flip path based on alliance side
+      () -> DriverStation.getAlliance()
+          .orElse(DriverStation.Alliance.Blue)
+          .equals(DriverStation.Alliance.Red),
+      this // AIRobotInSimulation is a subsystem; this command should use it as a requirement
+    );
+  }
 
   private Command joystickDrive(XboxController joystick) {
     // Obtain chassis speeds from joystick input

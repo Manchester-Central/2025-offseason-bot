@@ -14,7 +14,9 @@
 package frc.robot.util;
 
 import com.ctre.phoenix6.StatusCode;
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
@@ -121,8 +123,8 @@ public class PhoenixUtil {
    * <h4>Note:This function is skipped when running on a real robot, ensuring no impact on constants used on real
    * robot hardware.</h4>
    */
-  public static SwerveModuleConstants regulateModuleConstantForSimulation(
-          SwerveModuleConstants<?, ?, ?> moduleConstants) {
+  public static SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> regulateModuleConstantForSimulation(
+          SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> moduleConstants) {
     // Skip regulation if running on a real robot
     if (RobotBase.isReal()) return moduleConstants;
 
