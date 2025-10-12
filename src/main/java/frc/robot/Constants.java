@@ -16,6 +16,7 @@ package frc.robot;
 import static edu.wpi.first.units.Units.Amps;
 
 import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.RobotBase;
 
@@ -37,6 +38,10 @@ public final class Constants {
 
     /** Replaying from a log file. */
     REPLAY
+  }
+
+  public static class GeneralConstants {
+    public static final Pose2d DefaultStartingPose = new Pose2d(7.1, 2, Rotation2d.fromDegrees(180));
   }
 
   /** This contains all of our constants for CAN IDs and Can Bus Names. */
@@ -66,11 +71,12 @@ public final class Constants {
     // Gripper (70s)
     public static final int GripperMotorCANID = 52; // TODO: set on robot
   }
-  public static class GripperConstants {
 
+  public static class GripperConstants {
     public static final Current SupplyCurrentLimit = Amps.of(60); //TODO: double check the values soon...
     public static final Current StatorCurrentLimit = Amps.of(60); //TODO: double check the values soon...
   }
+
   public static class QuestNavConstants {
     public static final double RobotToQuestXInches = 2;
     public static final double RobotToQuestYInches = 4;

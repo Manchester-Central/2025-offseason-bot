@@ -7,11 +7,12 @@ package frc.robot.subsystems;
 import static edu.wpi.first.units.Units.Amps;
 
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
 
 import com.chaos131.util.DashboardNumber;
-import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.CanIdentifiers;
 import frc.robot.Constants.GripperConstants;
@@ -29,8 +30,11 @@ public class Gripper extends SubsystemBase {
   private DashboardNumber m_statorCurrentLimit = m_gripperTuner.tunable(
       "StatorCurrentLimit", GripperConstants.StatorCurrentLimit.in(Amps), (config, newValue) -> config.CurrentLimits.StatorCurrentLimit = newValue);
       
+  private LoggedMechanismLigament2d m_ligament;
+
   /** Creates a new Gripper. */
-  public Gripper() {
+  public Gripper(LoggedMechanismLigament2d ligament) {
+    m_ligament = ligament;
     
     m_gripperMotor.Configuration.CurrentLimits.StatorCurrentLimitEnable = true;
     m_gripperMotor.Configuration.CurrentLimits.StatorCurrentLimit = m_statorCurrentLimit.get();
@@ -63,7 +67,7 @@ public class Gripper extends SubsystemBase {
     return m_hasCoralGripped; 
   }
 
-   /**                                                    //TODO: Add function and stuff...
+  /**                                                    //TODO: Add function and stuff...
    * Checks if there is a coral at the sensor.
    */
   // public boolean hasCoralNoDebounce() {
@@ -72,12 +76,19 @@ public class Gripper extends SubsystemBase {
 
   @Override
   public void periodic() {
-
     boolean currentLimitReached = m_gripperMotor.getStatorCurrent().getValue().gt(Amps.of(m_statorCurrentLimit.get() - 10.0));
     m_hasCoralGripped = currentLimitReached;
     //TODO: 
 
     Logger.recordOutput("Gripper/HasCoral", hasCoral());
     // This method will be called once per scheduler run
+
+    if (hasCoral()) {
+      m_ligament.setColor(new Color8Bit(255, 255, 255));
+      m_ligament.setLineWeight(8);
+    } else {
+      m_ligament.setColor(new Color8Bit(50, 50, 255));
+      m_ligament.setLineWeight(3);
+    }
   }
 }
