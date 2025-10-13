@@ -5,6 +5,14 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Degrees;
+
+import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
+
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import edu.wpi.first.wpilibj.util.Color8Bit;
 import static edu.wpi.first.units.Units.Rotations;
 
 import org.littletonrobotics.junction.Logger;
@@ -16,16 +24,29 @@ import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
-import edu.wpi.first.units.measure.Angle;
+import com.ctre.phoenix6.sim.ChassisReference;
+
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.CanIdentifiers;
+import frc.robot.Constants.SimArmConstants;
+import frc.robot.Constants.ArmConstants.ArmPoses;
 import frc.robot.util.ChaosCanCoder;
 import frc.robot.util.ChaosCanCoderTuner;
 import frc.robot.util.ChaosTalonFx;
 import frc.robot.util.ChaosTalonFxTuner;
 
 public class Arm extends SubsystemBase {
+
+  private LoggedMechanismLigament2d m_ligament;
+  
+  private DCMotor m_DCMotor = DCMotor.getKrakenX60(1);
+  private DCMotorSim m_motorSim = new DCMotorSim(
+    LinearSystemId.createDCMotorSystem(m_DCMotor, 0.01, ArmConstants.RotorToSensorRatio),
+    m_DCMotor,
+    0.001,
+    0.001);
 
   private Angle m_targetAngle = Degrees.of(120);
    private ChaosTalonFx m_motor = new ChaosTalonFx(CanIdentifiers.ArmMotorCANID);
@@ -39,9 +60,9 @@ public class Arm extends SubsystemBase {
       ArmConstants.canCoderOffsetAngle.in(Degrees), (config, newValue) ->
       config.MagnetSensor.MagnetOffset = Degrees.of(newValue).in(Rotations));
 
-      private DashboardNumber m_kp = m_talonTuner.tunable("kP", ArmConstants.kP, (config, newValue) -> config.Slot0.kP = newValue);
-      private DashboardNumber m_ki = m_talonTuner.tunable("kI", ArmConstants.kI, (config, newValue) -> config.Slot0.kI = newValue);
-      private DashboardNumber m_kd = m_talonTuner.tunable("kD", ArmConstants.kD, (config, newValue) -> config.Slot0.kD = newValue);
+      private DashboardNumber m_kp = m_talonTuner.tunable("kP", Robot.isSimulation() ? SimArmConstants.kP : ArmConstants.kP, (config, newValue) -> config.Slot0.kP = newValue);
+      private DashboardNumber m_ki = m_talonTuner.tunable("kI", Robot.isSimulation() ? SimArmConstants.kI : ArmConstants.kI, (config, newValue) -> config.Slot0.kI = newValue);
+      private DashboardNumber m_kd = m_talonTuner.tunable("kD", Robot.isSimulation() ? SimArmConstants.kD : ArmConstants.kD, (config, newValue) -> config.Slot0.kD = newValue);
       private DashboardNumber m_kg = m_talonTuner.tunable("kG", ArmConstants.kG, (config, newValue) -> config.Slot0.kG = newValue);
       private DashboardNumber m_ks = m_talonTuner.tunable("kS", ArmConstants.kS, (config, newValue) -> config.Slot0.kS = newValue);
       private DashboardNumber m_kv = m_talonTuner.tunable("kV", ArmConstants.kV, (config, newValue) -> config.Slot0.kV = newValue);
@@ -65,7 +86,11 @@ public class Arm extends SubsystemBase {
       (config, newValue) -> config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = newValue);
 
   /** Creates a new Arm. */
-  public Arm() {
+  public Arm(LoggedMechanismLigament2d ligament) {
+    m_ligament = ligament;
+    m_ligament.setColor(new Color8Bit(150, 150, 150));
+    m_ligament.setLineWeight(3);
+
     m_canCoder.Configuration.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1;
     m_canCoder.Configuration.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive; // TODO: Check this value
     m_canCoder.Configuration.MagnetSensor.MagnetOffset = Degrees.of(m_canCoderOffsetDegrees.get()).in(Rotations); // TODO: Check this value
@@ -99,9 +124,9 @@ public class Arm extends SubsystemBase {
 
     m_motor.applyConfig();
 
-    // TODO: Handle Sim
-    // m_motor.attachMotorSim(m_motorSim, m_gearRatio, ChassisReference.Clockwise_Positive, true);
-    // m_motor.attachCanCoderSim(m_canCoder);
+    m_motor.attachMotorSim(m_motorSim, ArmConstants.RotorToSensorRatio, ChassisReference.Clockwise_Positive, true);
+    m_motor.attachCanCoderSim(m_canCoder);
+    m_motor.setSimAngle((Angle)ArmPoses.StartingPose.get()); //TODO: make the "(Angle)" pretty lol...
   }
 
   /**
@@ -166,6 +191,9 @@ public class Arm extends SubsystemBase {
 
   @Override
   public void periodic() {
+    // This method will be called once per scheduler run
+    m_ligament.setAngle(getCurrentAngle().in(Degrees) - 90);
+
     super.periodic();
     Logger.recordOutput("Arm/Setpoint", m_targetAngle);
     Logger.recordOutput("Arm/CurrentAngle", getCurrentAngle().in(Degrees));

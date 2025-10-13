@@ -16,8 +16,12 @@ package frc.robot;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 
+import com.chaos131.util.DashboardUnit;
+
+import edu.wpi.first.units.AngleUnit;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.RobotBase;
 
@@ -39,6 +43,10 @@ public final class Constants {
 
     /** Replaying from a log file. */
     REPLAY
+  }
+
+  public static class GeneralConstants {
+    public static final Pose2d DefaultStartingPose = new Pose2d(7.1, 2, Rotation2d.fromDegrees(180));
   }
 
   /** This contains all of our constants for CAN IDs and Can Bus Names. */
@@ -68,11 +76,18 @@ public final class Constants {
     // Gripper (70s)
     public static final int GripperMotorCANID = 52; // TODO: set on robot
   }
-  public static class GripperConstants {
 
+  public static class GripperConstants {
     public static final Current SupplyCurrentLimit = Amps.of(60); //TODO: double check the values soon...
     public static final Current StatorCurrentLimit = Amps.of(60); //TODO: double check the values soon...
   }
+
+  public static class SimArmConstants {
+    public static final double kP = 10.0;
+    public static final double kI = 0.0;
+    public static final double kD = 0.0;
+  }
+
   public static class ArmConstants {
     public static final Angle canCoderOffsetAngle = Degrees.of(0.0); //TODO: add real value to this...
 
@@ -85,20 +100,30 @@ public final class Constants {
     public static final double kV = 0.0;
     public static final double kA = 0.0;
 
-    public static final double MMCruiseVelocity = 0.0;
-    public static final double MMAcceleration = 0.0;
-    public static final double MMJerk = 0.0;
+    public static final double MMCruiseVelocity = 10.0;
+    public static final double MMAcceleration = 10.0;
+    public static final double MMJerk = 10.0;
 
-    public static final double SupplyCurrentLimit = 0.0;
-    public static final double StatorCurrentLimit = 0.0;
+    public static final double SupplyCurrentLimit = 50.0;
+    public static final double StatorCurrentLimit = 50.0;
 
-    public static final double RotorToSensorRatio = 0.0;
-    public static final double SensorToMechanismRatio = 0.0;
-    public static final double VoltageClosedLoopRampPeriod = 0.0;
+    public static final double RotorToSensorRatio = 1.0;
+    public static final double SensorToMechanismRatio = 1.0;
+    public static final double VoltageClosedLoopRampPeriod = 0.5;
 
     public static final Angle MinAngle = Degrees.of(90); // Actual: 0
     public static final Angle MaxAngle = Degrees.of(180); // Actual: 210
+
+    public static class ArmPoses {
+      public static final DashboardUnit<AngleUnit> StartingPose = new DashboardUnit<>("Poses/Starting", Degrees.of(90)); //TODO Tune all of these
+      public static final DashboardUnit<AngleUnit> FloorIntakePose = new DashboardUnit<>("Poses/FloorIntake", Degrees.of(216));
+      public static final DashboardUnit<AngleUnit> HPIntakePose = new DashboardUnit<>("Poses/HPIntake", Degrees.of(115));
+      public static final DashboardUnit<AngleUnit> ScoreLowPose = new DashboardUnit<>("Poses/ScoreLow", Degrees.of(12));
+      public static final DashboardUnit<AngleUnit> ScoreHighPose = new DashboardUnit<>("Poses/ScoreHigh", Degrees.of(22));
+      public static final DashboardUnit<AngleUnit> DeAlgaePose = new DashboardUnit<>("Poses/DeAlgae", Degrees.of(140));
+    }
   }
+
   public static class QuestNavConstants {
     public static final double RobotToQuestXInches = 2;
     public static final double RobotToQuestYInches = 4;
