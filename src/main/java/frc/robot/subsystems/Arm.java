@@ -177,7 +177,7 @@ public class Arm extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    m_ligament.setAngle(getCurrentAngle().in(Degrees) - 90);
+    m_ligament.setAngle(getCurrentAngle().in(Degrees) + 90);
 
     super.periodic();
     Logger.recordOutput("Arm/Setpoint", m_targetAngle);
