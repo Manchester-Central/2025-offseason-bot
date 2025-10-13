@@ -20,12 +20,14 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Constants.ArmConstants.ArmPoses;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Arm;
@@ -182,6 +184,13 @@ public class RobotContainer {
                 .ignoringDisable(true));
 
     m_arm.setDefaultCommand(new InstantCommand(() -> m_arm.setSpeed(m_operator.getLeftY() * 0.5), m_arm));
+
+    m_driver.leftTrigger().whileTrue(new InstantCommand(() -> m_arm.setTargetAngle((Angle)ArmPoses.HPIntakePose.get()), m_arm)
+      .alongWith(new InstantCommand(() -> m_gripper.setGripSpeed(-0.6), m_gripper)));
+
+    m_driver.rightBumper().whileTrue(new InstantCommand(() -> m_arm.setTargetAngle((Angle)ArmPoses.ScoreLowPose.get()), m_arm));
+
+    m_driver.rightTrigger().whileTrue(new InstantCommand(() -> m_gripper.setGripSpeed(0.6), m_gripper));
   }
 
   /**
