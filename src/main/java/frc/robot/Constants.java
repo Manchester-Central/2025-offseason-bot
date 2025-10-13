@@ -16,6 +16,9 @@ package frc.robot;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 
+import com.chaos131.util.DashboardUnit;
+
+import edu.wpi.first.units.AngleUnit;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -104,8 +107,17 @@ public final class Constants {
 
     public static final Angle MinAngle = Degrees.of(90); // Actual: 0
     public static final Angle MaxAngle = Degrees.of(180); // Actual: 210
+
+    public static class ArmPoses {
+      public static final DashboardUnit<AngleUnit> StartingPose = new DashboardUnit<>("Poses/Starting", Degrees.of(90)); //TODO Tune all of these
+      public static final DashboardUnit<AngleUnit> FloorIntakePose = new DashboardUnit<>("Poses/FloorIntake", Degrees.of(216));
+      public static final DashboardUnit<AngleUnit> HPIntakePose = new DashboardUnit<>("Poses/HPIntake", Degrees.of(115));
+      public static final DashboardUnit<AngleUnit> ScoreLowPose = new DashboardUnit<>("Poses/ScoreLow", Degrees.of(12));
+      public static final DashboardUnit<AngleUnit> ScoreHighPose = new DashboardUnit<>("Poses/ScoreHigh", Degrees.of(22));
+      public static final DashboardUnit<AngleUnit> DeAlgaePose = new DashboardUnit<>("Poses/DeAlgae", Degrees.of(140));
+    }
   }
-  
+
   public static class QuestNavConstants {
     public static final double RobotToQuestXInches = 2;
     public static final double RobotToQuestYInches = 4;
