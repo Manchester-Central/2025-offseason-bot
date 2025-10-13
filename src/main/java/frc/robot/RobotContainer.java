@@ -194,7 +194,7 @@ public class RobotContainer {
     Pose3d[] parts = {
       new Pose3d(),
       new Pose3d(new Translation3d(0, 0, m_originToPivot.getLength()),
-                 new Rotation3d(Degrees.of(0), m_arm.getAngle().times(-1), Degrees.of(0))),
+                 new Rotation3d(Degrees.of(0), m_arm.getCurrentAngle().times(-1), Degrees.of(0))),
     };
     // Note, the arm's angle is multiplied by -1 because RollPitchYaw uses slightly different directions
     // than many think are intuitive, +pitch is actually down because of the left facing +y direction

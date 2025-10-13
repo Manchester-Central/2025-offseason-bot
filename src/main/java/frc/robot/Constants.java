@@ -14,7 +14,9 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Degrees;
 
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -64,9 +66,9 @@ public final class Constants {
     // public static final int BRAbsoEncoCANID = 38;
     // public static final int GyroCANID = 45;
 
-    // Base Pivot (20s)
-    public static final int BasePivotMotorCANID = 20;
-    public static final int BasePivotCANcoderCANID = 21;
+    // Arm (20s)
+    public static final int ArmMotorCANID = 20;
+    public static final int ArmCANcoderCANID = 21;
 
     // Gripper (70s)
     public static final int GripperMotorCANID = 52; // TODO: set on robot
@@ -77,6 +79,33 @@ public final class Constants {
     public static final Current StatorCurrentLimit = Amps.of(60); //TODO: double check the values soon...
   }
 
+  public static class ArmConstants {
+    public static final Angle canCoderOffsetAngle = Degrees.of(0.0); //TODO: add real value to this...
+
+    // TODO: Check all of these
+    public static final double kP = 0.0;
+    public static final double kI = 0.0;
+    public static final double kD = 0.0;
+    public static final double kG = 0.0;
+    public static final double kS = 0.0;
+    public static final double kV = 0.0;
+    public static final double kA = 0.0;
+
+    public static final double MMCruiseVelocity = 0.0;
+    public static final double MMAcceleration = 0.0;
+    public static final double MMJerk = 0.0;
+
+    public static final double SupplyCurrentLimit = 0.0;
+    public static final double StatorCurrentLimit = 0.0;
+
+    public static final double RotorToSensorRatio = 0.0;
+    public static final double SensorToMechanismRatio = 0.0;
+    public static final double VoltageClosedLoopRampPeriod = 0.0;
+
+    public static final Angle MinAngle = Degrees.of(90); // Actual: 0
+    public static final Angle MaxAngle = Degrees.of(180); // Actual: 210
+  }
+  
   public static class QuestNavConstants {
     public static final double RobotToQuestXInches = 2;
     public static final double RobotToQuestYInches = 4;
