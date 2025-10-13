@@ -70,14 +70,22 @@ task(replayWatch, type: JavaExec) {
 }
 
 def secretsFile = file("secrets.json")
-def secrets = new groovy.json.JsonSlurper().parseText(secretsFile.text)
+if (secretsFile.exists()) {
+    def secrets = new groovy.json.JsonSlurper().parseText(secretsFile.text)
+    project.ext.sharedCodeUsername = secrets.github_package_auth.username
+    project.ext.sharedCodePassword = secrets.github_package_auth.personal_access_token
+}
+else {
+    project.ext.sharedCodeUsername = System.getenv('CHAOS_PACKAGE_USERNAME')
+    project.ext.sharedCodePassword = System.getenv('CHAOS_PACKAGE_PASSWORD')
+}
 
 repositories {
     maven {
         url = uri("https://maven.pkg.github.com/Manchester-Central/CHAOS-Shared-Code")
         credentials {
-            username = secrets.github_package_auth.username
-            password = secrets.github_package_auth.personal_access_token
+            username = sharedCodeUsername
+            password = sharedCodePassword
         }
     }
 }
@@ -106,7 +114,7 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-    implementation 'com.chaos131:shared:2025.0.13'
+    implementation 'com.chaos131:shared:2025.0.14'
 
     def akitJson = new groovy.json.JsonSlurper().parseText(new File(projectDir.getAbsolutePath() + "/vendordeps/AdvantageKit.json").text)
     annotationProcessor "org.littletonrobotics.akit:akit-autolog:$akitJson.version"
