@@ -82,6 +82,12 @@ public final class Constants {
     public static final Current StatorCurrentLimit = Amps.of(60); //TODO: double check the values soon...
   }
 
+  public static class SimArmConstants {
+    public static final double kP = 10.0;
+    public static final double kI = 0.0;
+    public static final double kD = 0.0;
+  }
+
   public static class ArmConstants {
     public static final Angle canCoderOffsetAngle = Degrees.of(0.0); //TODO: add real value to this...
 
@@ -94,16 +100,16 @@ public final class Constants {
     public static final double kV = 0.0;
     public static final double kA = 0.0;
 
-    public static final double MMCruiseVelocity = 0.0;
-    public static final double MMAcceleration = 0.0;
-    public static final double MMJerk = 0.0;
+    public static final double MMCruiseVelocity = 10.0;
+    public static final double MMAcceleration = 10.0;
+    public static final double MMJerk = 10.0;
 
-    public static final double SupplyCurrentLimit = 0.0;
-    public static final double StatorCurrentLimit = 0.0;
+    public static final double SupplyCurrentLimit = 50.0;
+    public static final double StatorCurrentLimit = 50.0;
 
     public static final double RotorToSensorRatio = 1.0;
     public static final double SensorToMechanismRatio = 1.0;
-    public static final double VoltageClosedLoopRampPeriod = 0.0;
+    public static final double VoltageClosedLoopRampPeriod = 0.5;
 
     public static final Angle MinAngle = Degrees.of(90); // Actual: 0
     public static final Angle MaxAngle = Degrees.of(180); // Actual: 210

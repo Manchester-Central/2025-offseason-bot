@@ -27,8 +27,10 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.sim.ChassisReference;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.CanIdentifiers;
+import frc.robot.Constants.SimArmConstants;
 import frc.robot.Constants.ArmConstants.ArmPoses;
 import frc.robot.util.ChaosCanCoder;
 import frc.robot.util.ChaosCanCoderTuner;
@@ -58,9 +60,9 @@ public class Arm extends SubsystemBase {
       ArmConstants.canCoderOffsetAngle.in(Degrees), (config, newValue) ->
       config.MagnetSensor.MagnetOffset = Degrees.of(newValue).in(Rotations));
 
-      private DashboardNumber m_kp = m_talonTuner.tunable("kP", ArmConstants.kP, (config, newValue) -> config.Slot0.kP = newValue);
-      private DashboardNumber m_ki = m_talonTuner.tunable("kI", ArmConstants.kI, (config, newValue) -> config.Slot0.kI = newValue);
-      private DashboardNumber m_kd = m_talonTuner.tunable("kD", ArmConstants.kD, (config, newValue) -> config.Slot0.kD = newValue);
+      private DashboardNumber m_kp = m_talonTuner.tunable("kP", Robot.isSimulation() ? SimArmConstants.kP : ArmConstants.kP, (config, newValue) -> config.Slot0.kP = newValue);
+      private DashboardNumber m_ki = m_talonTuner.tunable("kI", Robot.isSimulation() ? SimArmConstants.kI : ArmConstants.kI, (config, newValue) -> config.Slot0.kI = newValue);
+      private DashboardNumber m_kd = m_talonTuner.tunable("kD", Robot.isSimulation() ? SimArmConstants.kD : ArmConstants.kD, (config, newValue) -> config.Slot0.kD = newValue);
       private DashboardNumber m_kg = m_talonTuner.tunable("kG", ArmConstants.kG, (config, newValue) -> config.Slot0.kG = newValue);
       private DashboardNumber m_ks = m_talonTuner.tunable("kS", ArmConstants.kS, (config, newValue) -> config.Slot0.kS = newValue);
       private DashboardNumber m_kv = m_talonTuner.tunable("kV", ArmConstants.kV, (config, newValue) -> config.Slot0.kV = newValue);
