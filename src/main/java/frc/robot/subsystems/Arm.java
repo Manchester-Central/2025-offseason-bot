@@ -8,7 +8,10 @@ import static edu.wpi.first.units.Units.Degrees;
 
 import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
 
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import static edu.wpi.first.units.Units.Rotations;
 
@@ -21,9 +24,12 @@ import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
+import com.ctre.phoenix6.sim.ChassisReference;
+
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.CanIdentifiers;
+import frc.robot.Constants.ArmConstants.ArmPoses;
 import frc.robot.util.ChaosCanCoder;
 import frc.robot.util.ChaosCanCoderTuner;
 import frc.robot.util.ChaosTalonFx;
@@ -33,6 +39,13 @@ public class Arm extends SubsystemBase {
 
   private LoggedMechanismLigament2d m_ligament;
   
+  private DCMotor m_DCMotor = DCMotor.getKrakenX60(1);
+  private DCMotorSim m_motorSim = new DCMotorSim(
+    LinearSystemId.createDCMotorSystem(m_DCMotor, 0.01, ArmConstants.RotorToSensorRatio),
+    m_DCMotor,
+    0.001,
+    0.001);
+
   private Angle m_targetAngle = Degrees.of(120);
    private ChaosTalonFx m_motor = new ChaosTalonFx(CanIdentifiers.ArmMotorCANID);
    private ChaosCanCoder m_canCoder =
@@ -109,9 +122,9 @@ public class Arm extends SubsystemBase {
 
     m_motor.applyConfig();
 
-    // TODO: Handle Sim
-    // m_motor.attachMotorSim(m_motorSim, m_gearRatio, ChassisReference.Clockwise_Positive, true);
-    // m_motor.attachCanCoderSim(m_canCoder);
+    m_motor.attachMotorSim(m_motorSim, ArmConstants.RotorToSensorRatio, ChassisReference.Clockwise_Positive, true);
+    m_motor.attachCanCoderSim(m_canCoder);
+    m_motor.setSimAngle((Angle)ArmPoses.StartingPose.get()); //TODO: make the "(Angle)" pretty lol...
   }
 
   /**
@@ -177,7 +190,7 @@ public class Arm extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    m_ligament.setAngle(getCurrentAngle().in(Degrees) + 90);
+    m_ligament.setAngle(getCurrentAngle().in(Degrees) - 90);
 
     super.periodic();
     Logger.recordOutput("Arm/Setpoint", m_targetAngle);

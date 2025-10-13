@@ -101,8 +101,8 @@ public final class Constants {
     public static final double SupplyCurrentLimit = 0.0;
     public static final double StatorCurrentLimit = 0.0;
 
-    public static final double RotorToSensorRatio = 0.0;
-    public static final double SensorToMechanismRatio = 0.0;
+    public static final double RotorToSensorRatio = 1.0;
+    public static final double SensorToMechanismRatio = 1.0;
     public static final double VoltageClosedLoopRampPeriod = 0.0;
 
     public static final Angle MinAngle = Degrees.of(90); // Actual: 0

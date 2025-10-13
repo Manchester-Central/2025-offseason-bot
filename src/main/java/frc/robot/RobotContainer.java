@@ -181,7 +181,7 @@ public class RobotContainer {
                     m_swerveDrive)
                 .ignoringDisable(true));
 
-    m_arm.setDefaultCommand(new InstantCommand(() -> m_arm.setSpeed(m_operator.getLeftY() * 0.2), m_arm));
+    m_arm.setDefaultCommand(new InstantCommand(() -> m_arm.setSpeed(m_operator.getLeftY() * 0.5), m_arm));
   }
 
   /**
