@@ -9,7 +9,6 @@ import static edu.wpi.first.units.Units.Amps;
 import org.littletonrobotics.junction.Logger;
 
 import com.chaos131.util.DashboardNumber;
-import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;

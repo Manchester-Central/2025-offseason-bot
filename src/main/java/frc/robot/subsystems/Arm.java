@@ -7,8 +7,6 @@ package frc.robot.subsystems;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Rotations;
 
-import java.util.Optional;
-
 import org.littletonrobotics.junction.Logger;
 
 import com.chaos131.util.DashboardNumber;
@@ -18,14 +16,10 @@ import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
-import com.ctre.phoenix6.sim.ChassisReference;
-
 import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.CanIdentifiers;
-import frc.robot.Robot;
 import frc.robot.util.ChaosCanCoder;
 import frc.robot.util.ChaosCanCoderTuner;
 import frc.robot.util.ChaosTalonFx;
@@ -34,13 +28,13 @@ import frc.robot.util.ChaosTalonFxTuner;
 public class Arm extends SubsystemBase {
 
   private Angle m_targetAngle = Degrees.of(120);
-   private ChaosTalonFx m_motor = new ChaosTalonFx(CanIdentifiers.BasePivotMotorCANID);
+   private ChaosTalonFx m_motor = new ChaosTalonFx(CanIdentifiers.ArmMotorCANID);
    private ChaosCanCoder m_canCoder =
-      new ChaosCanCoder(CanIdentifiers.BasePivotCANcoderCANID);
-      private ChaosTalonFxTuner m_talonTuner = new ChaosTalonFxTuner("Base Pivot", m_motor);
-      private ChaosCanCoderTuner m_canCoderTuner = new ChaosCanCoderTuner("Base Pivot", m_canCoder);
+      new ChaosCanCoder(CanIdentifiers.ArmCANcoderCANID);
+      private ChaosTalonFxTuner m_talonTuner = new ChaosTalonFxTuner("Arm", m_motor);
+      private ChaosCanCoderTuner m_canCoderTuner = new ChaosCanCoderTuner("Arm", m_canCoder);
 
-       private DashboardNumber m_canCoderOffsetDegrees = m_canCoderTuner.tunable("CANCoder Tuner",
+       private DashboardNumber m_canCoderOffsetDegrees = m_canCoderTuner.tunable("Offset_Degrees",
       //Robot.isReal() ? ArmConstants.canCoderOffsetDegrees : SimArmConstants.canCoderOffsetDegrees, (config, newValue) -> 
       ArmConstants.canCoderOffsetAngle.in(Degrees), (config, newValue) ->
       config.MagnetSensor.MagnetOffset = Degrees.of(newValue).in(Rotations));
@@ -83,7 +77,7 @@ public class Arm extends SubsystemBase {
     m_motor.Configuration.CurrentLimits.SupplyCurrentLimit = m_supplyCurrentLimit.get();
     m_motor.Configuration.CurrentLimits.StatorCurrentLimitEnable = true;
     m_motor.Configuration.CurrentLimits.StatorCurrentLimit = m_statorCurrentLimit.get();
-    m_motor.Configuration.Feedback.FeedbackRemoteSensorID = CanIdentifiers.BasePivotCANcoderCANID;
+    m_motor.Configuration.Feedback.FeedbackRemoteSensorID = CanIdentifiers.ArmCANcoderCANID;
     m_motor.Configuration.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder; // TODO: Check Value
     m_motor.Configuration.Feedback.RotorToSensorRatio = m_rotorToSensorRatio.get();
     m_motor.Configuration.ClosedLoopRamps.VoltageClosedLoopRampPeriod = m_rampPeriod.get();

@@ -61,9 +61,9 @@ public final class Constants {
     // public static final int BRAbsoEncoCANID = 38;
     // public static final int GyroCANID = 45;
 
-    // Base Pivot (20s)
-    public static final int BasePivotMotorCANID = 20;
-    public static final int BasePivotCANcoderCANID = 21;
+    // Arm (20s)
+    public static final int ArmMotorCANID = 20;
+    public static final int ArmCANcoderCANID = 21;
 
     // Gripper (70s)
     public static final int GripperMotorCANID = 52; // TODO: set on robot
