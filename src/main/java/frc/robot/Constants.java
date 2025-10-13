@@ -76,6 +76,7 @@ public final class Constants {
   public static class ArmConstants {
     public static final Angle canCoderOffsetAngle = Degrees.of(0.0); //TODO: add real value to this...
 
+    // TODO: Check all of these
     public static final double kP = 0.0;
     public static final double kI = 0.0;
     public static final double kD = 0.0;
@@ -83,6 +84,20 @@ public final class Constants {
     public static final double kS = 0.0;
     public static final double kV = 0.0;
     public static final double kA = 0.0;
+
+    public static final double MMCruiseVelocity = 0.0;
+    public static final double MMAcceleration = 0.0;
+    public static final double MMJerk = 0.0;
+
+    public static final double SupplyCurrentLimit = 0.0;
+    public static final double StatorCurrentLimit = 0.0;
+
+    public static final double RotorToSensorRatio = 0.0;
+    public static final double SensorToMechanismRatio = 0.0;
+    public static final double VoltageClosedLoopRampPeriod = 0.0;
+
+    public static final Angle MinAngle = Degrees.of(90); // Actual: 0
+    public static final Angle MaxAngle = Degrees.of(180); // Actual: 210
   }
   public static class QuestNavConstants {
     public static final double RobotToQuestXInches = 2;
