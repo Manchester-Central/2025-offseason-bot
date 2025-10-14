@@ -186,10 +186,10 @@ public class RobotContainer {
 
     m_arm.setDefaultCommand(new RunCommand(() -> m_arm.setSpeed(m_operator.getLeftY() * 0.5), m_arm));
 
-    m_driver.leftTrigger().whileTrue(new RunCommand(() -> m_arm.setTargetAngle((Angle)ArmPoses.HPIntakePose.get()), m_arm)
+    m_driver.leftTrigger().whileTrue(new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.HPIntakePose.get()), m_arm)
       .alongWith(new InstantCommand(() -> m_gripper.setGripSpeed(-0.6), m_gripper)));
 
-    m_driver.rightBumper().whileTrue(new RunCommand(() -> m_arm.setTargetAngle((Angle)ArmPoses.ScoreLowPose.get()), m_arm));
+    m_driver.rightBumper().whileTrue(new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.ScoreLowPose.get()), m_arm));
 
     m_driver.rightTrigger().whileTrue(new RunCommand(() -> m_gripper.setGripSpeed(0.6), m_gripper));
   }
