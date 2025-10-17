@@ -1,5 +1,6 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.multisim;
 
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -43,128 +44,71 @@ import com.pathplanner.lib.path.PathPlannerPath;
 
 public class AdditionalSimRobot extends SubsystemBase {
   /* If an opponent robot is not on the field, it is placed in a queening position for performance. */
+  /* What the heck is a queening position? */
   public static final Pose2d[] ROBOT_QUEENING_POSITIONS = new Pose2d[] {
-    new Pose2d(-6, 0, new Rotation2d()),
-    new Pose2d(-5, 0, new Rotation2d()),
-    new Pose2d(-4, 0, new Rotation2d()),
-    new Pose2d(-3, 0, new Rotation2d()),
-    new Pose2d(-2, 0, new Rotation2d())
-    //new Pose2d(-1, 0, new Rotation2d())
+    new Pose2d(-2.0, 0, new Rotation2d()),
+    new Pose2d(-3.5, 0, new Rotation2d()),
+    new Pose2d(-5.0, 0, new Rotation2d()),
+    new Pose2d(-6.5, 0, new Rotation2d()),
+    new Pose2d(-8.0, 0, new Rotation2d())
   };
 
   public static final Pose2d[] ROBOTS_STARTING_POSITIONS = new Pose2d[] {
-    new Pose2d(15, 6, Rotation2d.fromDegrees(180)),
-    new Pose2d(15, 4, Rotation2d.fromDegrees(180)),
-    new Pose2d(15, 2, Rotation2d.fromDegrees(180)),
-    new Pose2d(1.6, 6, new Rotation2d()),
-    new Pose2d(1.6, 4, new Rotation2d())
-    //new Pose2d(1.6, 2, new Rotation2d())
+    // 2 allies
+    new Pose2d(7.2, 6, Rotation2d.fromDegrees(180)),
+    new Pose2d(7.2, 4, Rotation2d.fromDegrees(180)),
+    // then 3 enemies
+    new Pose2d(9.8, 2, new Rotation2d()),
+    new Pose2d(9.8, 6, new Rotation2d()),
+    new Pose2d(9.8, 4, new Rotation2d())
   };
 
   // you can create as many opponent robots as you needs
-  public static final AdditionalSimRobot[] instances = new AdditionalSimRobot[2];
+  public static final AdditionalSimRobot[] instances = new AdditionalSimRobot[5];
   public static void startOpponentRobotSimulations() {
+    int idx = 0;
     try {
       // Robot ID 0 is the main robot, so start counting at 1
-      instances[0] = new AdditionalSimRobot(1);
-      instances[0].buildBehaviorChooser(
-              // PathPlannerPath.fromPathFile("opponent robot cycle path 0"),
-              // Commands.none(),
-              // PathPlannerPath.fromPathFile("opponent robot cycle path 0 backwards"),
-              // Commands.none(),
-              new XboxController(1));
-
-      instances[1] = new AdditionalSimRobot(2);
-      instances[1].buildBehaviorChooser(
-              // PathPlannerPath.fromPathFile("opponent robot cycle path 1"),
-              // //instances[1].shootAtSpeaker(),
-              // Commands.none(),
-              // PathPlannerPath.fromPathFile("opponent robot cycle path 1 backwards"),
-              // Commands.none(),
-              new XboxController(2));
+      for (idx = 0; idx < instances.length; idx++) {
+        int id = idx+1;
+        instances[idx] = new AdditionalSimRobot(id);
+        instances[idx].buildBehaviorChooser(
+                PathPlannerPath.fromPathFile("opponent robot cycle path "+idx),
+                Commands.none(),
+                PathPlannerPath.fromPathFile("opponent robot cycle path "+idx+" backwards"),
+                Commands.none(),
+                new XboxController(id));
+      }
     } catch (Exception e) {
-      DriverStation.reportError("Failed to load opponent robot simulation paths, error: " + e.getMessage(), false);
+      DriverStation.reportError("Failed to load opponent robot "+idx+" simulation paths, error: " + e.getMessage(), false);
     }
   }
 
-  @Override
-  public void periodic() {
-    Pose2d[] poses = new Pose2d[]{
-      instances[0].swerveDriveSim.getSimulatedDriveTrainPose(),
-      instances[1].swerveDriveSim.getSimulatedDriveTrainPose()
-    };
-    Logger.recordOutput("FieldSimulation/AdditionalRobots", poses);
-  }
-  
-  /** Build the behavior chooser of this opponent robot and send it to the dashboard */
-  public void buildBehaviorChooser(
-        // PathPlannerPath segment0,
-        // Command toRunAtEndOfSegment0,
-        // PathPlannerPath segment1,
-        // Command toRunAtEndOfSegment1,
-        XboxController joystick) {
-    SendableChooser<Command> behaviorChooser = new SendableChooser<>();
-    final Supplier<Command> disable =
-        () -> Commands.runOnce(() -> swerveDriveSim.setSimulationWorldPose(queeningPose), this)
-                      .andThen(Commands.runOnce(
-                        () -> swerveDriveSim.setRobotSpeeds(new ChassisSpeeds())))
-                          // () -> swerveDriveSim.runChassisSpeeds(new ChassisSpeeds(),
-                          //                                       new Translation2d(),
-                          //                                       false, false)))
-                      .ignoringDisable(true);
-
-    // Option to disable the robot
-    behaviorChooser.setDefaultOption("Disable", disable.get());
-
-    // Option to auto-cycle the robot
-    // behaviorChooser.addOption(
-    //     "Auto Cycle", getAutoCycleCommand(segment0, toRunAtEndOfSegment0,
-    //                                            segment1, toRunAtEndOfSegment1));
-
-    // Option to manually control the robot with a joystick
-    behaviorChooser.addOption("Joystick Drive", joystickDrive(joystick));
-
-    // Schedule the command when another behavior is selected
-    behaviorChooser.onChange((Command::schedule));
-
-    // Schedule the selected command when teleop starts
-    RobotModeTriggers.teleop()
-                     .onTrue(Commands.runOnce(
-                        () -> behaviorChooser.getSelected().schedule()));
-
-    // Disable the robot when the user robot is disabled
-    RobotModeTriggers.disabled().onTrue(disable.get());
-
-    SmartDashboard.putData("AIRobotBehaviors/Opponent Robot " + id + " Behavior", behaviorChooser);
-}
-
-  /** Get the command to auto-cycle the robot relatively */
-  private Command getAutoCycleCommand(
-        PathPlannerPath segment0,
-        Command toRunAtEndOfSegment0,
-        PathPlannerPath segment1,
-        Command toRunAtEndOfSegment1) {
-    final SequentialCommandGroup cycle = new SequentialCommandGroup();
-    final Pose2d startingPose = new Pose2d(
-            segment0.getStartingDifferentialPose().getTranslation(),
-            segment0.getIdealStartingState().rotation());
-
-    cycle.addCommands(opponentRobotFollowPath(segment0)
-            .andThen(toRunAtEndOfSegment0)
-            .withTimeout(10));
-
-    cycle.addCommands(opponentRobotFollowPath(segment1)
-            .andThen(toRunAtEndOfSegment1)
-            .withTimeout(10));
-
-    return cycle.repeatedly()
-            .beforeStarting(Commands.runOnce(() -> swerveDriveSim.setSimulationWorldPose(
-                    FieldMirroringUtils.toCurrentAlliancePose(startingPose))));
-  }
+  /**
+   * Object specific member variables and functions
+   */
 
   private final Pose2d queeningPose;
   private final int id;
   private final SwerveDriveSimulation swerveDriveSim;
+
+  // PathPlanner PID settings
+  private final PPHolonomicDriveController driveController =
+          new PPHolonomicDriveController(new PIDConstants(5.0, 0.02),
+                                         new PIDConstants(7.0, 0.05));
+  // PathPlanner configuration
+  private static final RobotConfig PP_CONFIG = new RobotConfig(
+    Kilograms.of(55),
+    KilogramSquareMeters.of(8),
+    new ModuleConfig(
+      Inches.of(2).in(Meters),
+      3.5, // TODO: how to pull?
+      1.2, // TODO: how to pull?
+      DCMotor.getKrakenX60(1).withReduction(TunerConstants.FrontLeft.DriveMotorGearRatio), // presumably all the same
+      TunerConstants.FrontLeft.SlipCurrent, // TODO: double check right field
+      1), // Swerve module config
+    getModuleTranslations()
+  );
 
   public AdditionalSimRobot(int id) {
     this.id = id;
@@ -189,6 +133,16 @@ public class AdditionalSimRobot extends SubsystemBase {
     SimulatedArena.getInstance().addDriveTrainSimulation(swerveDriveSim);
   }
 
+  @Override
+  public void periodic() {
+    Pose2d[] poses = new Pose2d[]{
+      instances[0].swerveDriveSim.getSimulatedDriveTrainPose(),
+      instances[1].swerveDriveSim.getSimulatedDriveTrainPose()
+    };
+    Logger.recordOutput("FieldSimulation/AdditionalRobots", poses);
+  }
+
+  // Collects the swerve pod locations from the auto generated TunerConstants
   public static Translation2d[] getModuleTranslations() {
     return new Translation2d[] {
         new Translation2d(TunerConstants.FrontLeft.LocationX, TunerConstants.FrontLeft.LocationY),
@@ -198,29 +152,110 @@ public class AdditionalSimRobot extends SubsystemBase {
     };
   }
 
-  // PathPlanner configuration
-  private static final RobotConfig PP_CONFIG = new RobotConfig(
-    Kilograms.of(55),
-    KilogramSquareMeters.of(8),
-    new ModuleConfig(
-      Inches.of(2).in(Meters),
-      3.5,
-      1.2,
-      DCMotor.getKrakenX60(1).withReduction(8.14),
-      60, 1), // Swerve module config
-    new Translation2d(0.7, 0.7),
-    new Translation2d(0.7, -0.7),
-    new Translation2d(-0.7, 0.7),
-    new Translation2d(-0.7, -0.7)
-  );
+  /**
+   * Build the behavior chooser of this opponent robot and send it to the dashboard,
+   * cycle commands will repeat from the start when they expire.
+   * @param segment0
+   * @param toRunAtEndOfSegment0
+   * @param segment1
+   * @param toRunAtEndOfSegment1
+   * @param joystick
+   */
+  public void buildBehaviorChooser(
+        PathPlannerPath segment0,
+        Command toRunAtEndOfSegment0,
+        PathPlannerPath segment1,
+        Command toRunAtEndOfSegment1,
+        XboxController joystick) {
+    SendableChooser<Command> behaviorChooser = new SendableChooser<>();
+    final Supplier<Command> disable =
+        () -> Commands.runOnce(() -> swerveDriveSim.setSimulationWorldPose(queeningPose), this)
+                      .andThen(Commands.runOnce(
+                        () -> swerveDriveSim.setRobotSpeeds(new ChassisSpeeds())))
+                          // () -> swerveDriveSim.runChassisSpeeds(new ChassisSpeeds(),
+                          //                                       new Translation2d(),
+                          //                                       false, false)))
+                      .ignoringDisable(true);
 
-  // PathPlanner PID settings
-  private final PPHolonomicDriveController driveController =
-          new PPHolonomicDriveController(new PIDConstants(5.0, 0.02),
-                                         new PIDConstants(7.0, 0.05));
+    // Option to disable the robot
+    behaviorChooser.setDefaultOption("Disable", disable.get());
 
-  /** Follow path command for opponent robots */
-  private Command opponentRobotFollowPath(PathPlannerPath path) {
+    // Option to auto-cycle the robot
+    behaviorChooser.addOption(
+        "Auto Cycle", getAutoCycleCommand(segment0, toRunAtEndOfSegment0,
+                                               segment1, toRunAtEndOfSegment1));
+
+    // Option to manually control the robot with a joystick
+    behaviorChooser.addOption("Joystick Drive", joystickDrive(joystick));
+
+    // Schedule the command when another behavior is selected
+    behaviorChooser.onChange((Command::schedule));
+
+    // Schedule the selected command when teleop starts
+    RobotModeTriggers.teleop()
+                     .onTrue(Commands.runOnce(
+                        () -> behaviorChooser.getSelected().schedule()));
+
+    // Disable the robot when the user robot is disabled
+    RobotModeTriggers.disabled().onTrue(disable.get());
+
+    SmartDashboard.putData("AIRobotBehaviors/Opponent Robot " + id + " Behavior", behaviorChooser);
+  }
+
+  /** Get the command to auto-cycle the robot relatively */
+  private Command getAutoCycleCommand(
+        PathPlannerPath segment0,
+        Command toRunAtEndOfSegment0,
+        PathPlannerPath segment1,
+        Command toRunAtEndOfSegment1) {
+    final SequentialCommandGroup cycle = new SequentialCommandGroup();
+    final Pose2d startingPose = new Pose2d(
+            segment0.getStartingDifferentialPose().getTranslation(),
+            segment0.getIdealStartingState().rotation());
+
+    cycle.addCommands(simRobotFollowPath(segment0)
+            .andThen(toRunAtEndOfSegment0)
+            .withTimeout(10));
+
+    cycle.addCommands(simRobotFollowPath(segment1)
+            .andThen(toRunAtEndOfSegment1)
+            .withTimeout(10));
+
+    return cycle.repeatedly()
+            .beforeStarting(Commands.runOnce(() -> swerveDriveSim.setSimulationWorldPose(
+                    FieldMirroringUtils.toCurrentAlliancePose(startingPose))));
+  }
+
+  /**
+   * Sets up a sequential command group to follow a path, and then execute a command.
+   * Takes an arbitrary number of pairs, and repeats the cycle when done.
+   *
+   * @param cmd list of pairs of actions
+   * @return the compiled sequential command
+   */
+  public Command createPathSequence(Pair<PathPlannerPath, Command>... cmd) {
+    if (cmd.length == 0) throw new IllegalArgumentException();
+    final SequentialCommandGroup cycle = new SequentialCommandGroup();
+
+    for (var p : cmd) {
+      cycle.addCommands(simRobotFollowPath(p.getFirst())
+            .andThen(p.getSecond())
+            .withTimeout(10));
+    }
+
+    return cycle.repeatedly();
+
+    // return cycle.repeatedly()
+    //         .beforeStarting(Commands.runOnce(() -> swerveDriveSim.setSimulationWorldPose(
+    //         FieldMirroringUtils.toCurrentAlliancePose(startingPose))));
+  }
+
+  /**
+   * Follow path command for additional robots during simulated autonomous
+   * @param path 
+   * @return the command segment to be run
+   */
+  private Command simRobotFollowPath(PathPlannerPath path) {
     return new FollowPathCommand(
       path, // Specify the path
       // Provide actual robot pose in simulation, bypassing odometry error
@@ -241,6 +276,12 @@ public class AdditionalSimRobot extends SubsystemBase {
     );
   }
 
+  /**
+   * Generates a player driver command for an additional robot
+   *
+   * @param joystick object associated with a specific controller ID
+   * @return cmd to be run during teleop
+   */
   private Command joystickDrive(XboxController joystick) {
     // Obtain chassis speeds from joystick input
     final Supplier<ChassisSpeeds> joystickSpeeds = () -> new ChassisSpeeds(
@@ -252,6 +293,8 @@ public class AdditionalSimRobot extends SubsystemBase {
     final Supplier<Rotation2d> opponentDriverStationFacing = () ->
         FieldMirroringUtils.getCurrentAllianceDriverStationFacing()
                            .plus(Rotation2d.fromDegrees(180));
+    // Overly fancy trick from IronMaple that amounts to "face away" and then
+    // "add 180 degrees so you're actually facing me"
 
     return Commands.run(() -> {
       // Calculate field-centric speed from driverstation-centric speed
