@@ -160,6 +160,9 @@ public class RobotContainer {
             () -> -m_driver.getLeftX(),
             () -> -m_driver.getRightX()));
 
+    // Manual Arm Control
+    m_arm.setDefaultCommand(new RunCommand(() -> m_arm.setSpeed(m_operator.getLeftY() * 0.5), m_arm));
+
     // Lock to 0° when A button is held
     m_driver
         .a()
@@ -183,8 +186,6 @@ public class RobotContainer {
                             new Pose2d(m_swerveDrive.getPose().getTranslation(), new Rotation2d())),
                     m_swerveDrive)
                 .ignoringDisable(true));
-
-    m_arm.setDefaultCommand(new RunCommand(() -> m_arm.setSpeed(m_operator.getLeftY() * 0.5), m_arm));
 `
     m_driver.leftBumper().whileTrue(new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.HPIntakePose.get()), m_arm)
       .alongWith(new RunCommand(() -> m_gripper.setGripSpeed(-0.6), m_gripper)));
@@ -195,6 +196,11 @@ public class RobotContainer {
     m_driver.rightBumper().whileTrue(new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.ScoreLowPose.get()), m_arm));
 
     m_driver.rightTrigger().whileTrue(new RunCommand(() -> m_gripper.setGripSpeed(0.6), m_gripper));
+
+    m_driver.y().whileTrue(new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.DeAlgaePose), m_arm)); // Add gripper control
+
+    // Operator Controls
+    m_operator.leftBumper().whileTrue(new RunCommand(() -> m_gripper.setGripSpeed(-0.6), m_gripper));
   }
 
   /**
