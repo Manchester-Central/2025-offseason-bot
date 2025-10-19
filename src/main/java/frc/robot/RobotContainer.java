@@ -20,11 +20,15 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Constants.ArmConstants.ArmPoses;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Arm;
@@ -68,6 +72,7 @@ public class RobotContainer {
 
   // Controller
   private final Gamepad m_driver = new Gamepad(0);
+  private final Gamepad m_operator = new Gamepad(1);
 
   // Mechanism2d Simulation Support
   @AutoLogOutput(key = "Mech2d")
@@ -148,11 +153,11 @@ public class RobotContainer {
     m_autoChooser.addOption(
         "Drive SysId (Dynamic Reverse)", m_swerveDrive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
-    // Configure the button bindings
-    configureButtonBindings();
-
     m_arm = new Arm(m_armLigament);
     m_gripper = new Gripper(m_gripperLigament);
+
+    // Configure the button bindings
+    configureButtonBindings();
   }
 
   /**
@@ -185,7 +190,7 @@ public class RobotContainer {
 
     // Reset gyro to 0° when B button is pressed
     m_driver
-        .b()
+        .povUp()
         .onTrue(
             Commands.runOnce(
                     () ->
@@ -193,6 +198,15 @@ public class RobotContainer {
                             new Pose2d(m_swerveDrive.getPose().getTranslation(), new Rotation2d())),
                     m_swerveDrive)
                 .ignoringDisable(true));
+
+    m_arm.setDefaultCommand(new RunCommand(() -> m_arm.setSpeed(m_operator.getLeftY() * 0.5), m_arm));
+
+    m_driver.leftTrigger().whileTrue(new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.HPIntakePose.get()), m_arm)
+      .alongWith(new InstantCommand(() -> m_gripper.setGripSpeed(-0.6), m_gripper)));
+
+    m_driver.rightBumper().whileTrue(new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.ScoreLowPose.get()), m_arm));
+
+    m_driver.rightTrigger().whileTrue(new RunCommand(() -> m_gripper.setGripSpeed(0.6), m_gripper));
   }
 
   /**
@@ -227,7 +241,7 @@ public class RobotContainer {
     Pose3d[] parts = {
       new Pose3d(),
       new Pose3d(new Translation3d(0, 0, m_originToPivot.getLength()),
-                 new Rotation3d(Degrees.of(0), m_arm.getAngle().times(-1), Degrees.of(0))),
+                 new Rotation3d(Degrees.of(0), m_arm.getCurrentAngle().times(-1), Degrees.of(0))),
     };
     // Note, the arm's angle is multiplied by -1 because RollPitchYaw uses slightly different directions
     // than many think are intuitive, +pitch is actually down because of the left facing +y direction

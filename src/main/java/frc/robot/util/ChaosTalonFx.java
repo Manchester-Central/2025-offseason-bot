@@ -88,6 +88,16 @@ public class ChaosTalonFx extends TalonFX {
     return super.get();
   }
 
+  public void setSimAngle(Angle simAngle) {
+    if (m_motorSimModel == null) {
+      // Skip sim updates for motors without models
+      return;
+    }
+
+    m_motorSimModel.setAngle(simAngle.in(Radians));
+
+  }
+
   /**
    * Tells the motor to handle updating the sim state. Copied/inspired from:
    * https://v6.docs.ctr-electronics.com/en/2024/docs/api-reference/simulation/simulation-intro.html
