@@ -91,8 +91,8 @@ public class Arm extends SubsystemBase {
     m_ligament.setColor(new Color8Bit(150, 150, 150));
     m_ligament.setLineWeight(3);
 
-    m_canCoder.Configuration.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1;
-    m_canCoder.Configuration.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive; // TODO: Check this value
+    m_canCoder.Configuration.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.75;
+    m_canCoder.Configuration.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
     m_canCoder.Configuration.MagnetSensor.MagnetOffset = Degrees.of(m_canCoderOffsetDegrees.get()).in(Rotations); // TODO: Check this value
     m_canCoder.applyConfig();
 

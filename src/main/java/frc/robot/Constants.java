@@ -15,6 +15,7 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Rotations;
 
 import com.chaos131.util.DashboardUnit;
 
@@ -53,6 +54,7 @@ public final class Constants {
   public static class CanIdentifiers {
     // public static final String CTRECANBus = "CTRE bus";
     public static final String RioCANBus = "rio";
+    public static final String CTRECANBus = "canivore";
 
     // Swerve (30s & 40s)
     // public static final int FLSpeedCANID = 30;
@@ -89,7 +91,7 @@ public final class Constants {
   }
 
   public static class ArmConstants {
-    public static final Angle canCoderOffsetAngle = Degrees.of(0.0); //TODO: add real value to this...
+    public static final Angle canCoderOffsetAngle = Rotations.of(-0.115);
 
     // TODO: Check all of these
     public static final double kP = 0.0;
