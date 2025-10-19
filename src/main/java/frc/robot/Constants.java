@@ -98,8 +98,8 @@ public final class Constants {
     public static final double SensorToMechanismRatio = 1.0;
     public static final double VoltageClosedLoopRampPeriod = 0.5;
 
-    public static final Angle MinAngle = Degrees.of(90); // TODO: Actual: 0
-    public static final Angle MaxAngle = Degrees.of(180); // TODO: Actual: 210
+    public static final Angle MinAngle = Degrees.of(10);
+    public static final Angle MaxAngle = Degrees.of(210); // TODO: Actual: 216
 
     public static class ArmPoses {
       public static final DashboardUnit<AngleUnit, Angle> StartingPose = new DashboardUnit<>("Poses/Starting", Degrees.of(90)); //TODO Tune all of these
