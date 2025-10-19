@@ -186,7 +186,7 @@ public class RobotContainer {
                             new Pose2d(m_swerveDrive.getPose().getTranslation(), new Rotation2d())),
                     m_swerveDrive)
                 .ignoringDisable(true));
-`
+
     m_driver.leftBumper().whileTrue(new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.HPIntakePose.get()), m_arm)
       .alongWith(new RunCommand(() -> m_gripper.setGripSpeed(-0.6), m_gripper)));
   
@@ -197,7 +197,7 @@ public class RobotContainer {
 
     m_driver.rightTrigger().whileTrue(new RunCommand(() -> m_gripper.setGripSpeed(0.6), m_gripper));
 
-    m_driver.y().whileTrue(new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.DeAlgaePose), m_arm)); // Add gripper control
+    m_driver.y().whileTrue(new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.DeAlgaePose.get()), m_arm)); // Add gripper control
 
     // Operator Controls
     m_operator.leftBumper().whileTrue(new RunCommand(() -> m_gripper.setGripSpeed(-0.6), m_gripper));
