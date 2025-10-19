@@ -153,7 +153,8 @@ public class Arm extends SubsystemBase {
 
     m_targetAngle = newAngle;
     
-    m_motor.moveToPositionMotionMagic(newAngle.in(Rotations)); // Rotation to match the cancoder units
+    // m_motor.moveToPositionMotionMagic(newAngle.in(Rotations)); // Rotation to match the cancoder units
+    m_motor.moveToPosition(newAngle.in(Rotations));
   }
 
   public Angle getCurrentAngle() {

@@ -79,24 +79,24 @@ public final class Constants {
     public static final Angle canCoderOffsetAngle = Rotations.of(-0.115);
 
     // TODO: Check all of these
-    public static final double kP = 0.0;
+    public static final double kP = 600.0;
     public static final double kI = 0.0;
-    public static final double kD = 0.0;
-    public static final double kG = 0.0;
-    public static final double kS = 0.0;
+    public static final double kD = 75.0;
+    public static final double kG = 0.18;
+    public static final double kS = 0.4;
     public static final double kV = 0.0;
     public static final double kA = 0.0;
 
-    public static final double MMCruiseVelocity = 10.0;
-    public static final double MMAcceleration = 10.0;
-    public static final double MMJerk = 10.0;
+    public static final double MMCruiseVelocity = 100.0;
+    public static final double MMAcceleration = 100.0;
+    public static final double MMJerk = 100.0;
 
     public static final double SupplyCurrentLimit = 50.0;
     public static final double StatorCurrentLimit = 50.0;
 
     public static final double RotorToSensorRatio = 89.1453;
     public static final double SensorToMechanismRatio = 1.0;
-    public static final double VoltageClosedLoopRampPeriod = 0.5;
+    public static final double VoltageClosedLoopRampPeriod = 0.1;
 
     public static final Angle MinAngle = Degrees.of(10);
     public static final Angle MaxAngle = Degrees.of(210); // TODO: Actual: 216
