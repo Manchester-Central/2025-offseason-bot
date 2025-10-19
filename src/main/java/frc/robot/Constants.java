@@ -107,7 +107,7 @@ public final class Constants {
     public static final double SupplyCurrentLimit = 50.0;
     public static final double StatorCurrentLimit = 50.0;
 
-    public static final double RotorToSensorRatio = 1.0;
+    public static final double RotorToSensorRatio = 80.0; //TODO: check this number please :3
     public static final double SensorToMechanismRatio = 1.0;
     public static final double VoltageClosedLoopRampPeriod = 0.5;
 
