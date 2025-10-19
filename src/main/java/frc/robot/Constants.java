@@ -56,27 +56,12 @@ public final class Constants {
     public static final String RioCANBus = "rio";
     public static final String CTRECANBus = "canivore";
 
-    // Swerve (30s & 40s)
-    // public static final int FLSpeedCANID = 30;
-    // public static final int FLAngleCANID = 31;
-    // public static final int FLAbsoEncoCANID = 32;
-    // public static final int FRSpeedCANID = 33;
-    // public static final int FRAngleCANID = 34;
-    // public static final int FRAbsoEncoCANID = 35;
-    // public static final int BLSpeedCANID = 39;
-    // public static final int BLAngleCANID = 40;
-    // public static final int BLAbsoEncoCANID = 41;
-    // public static final int BRSpeedCANID = 36;
-    // public static final int BRAngleCANID = 37;
-    // public static final int BRAbsoEncoCANID = 38;
-    // public static final int GyroCANID = 45;
-
     // Arm (20s)
     public static final int ArmMotorCANID = 20;
     public static final int ArmCANcoderCANID = 21;
 
-    // Gripper (70s)
-    public static final int GripperMotorCANID = 52; // TODO: set on robot
+    // Gripper (50s)
+    public static final int GripperMotorCANID = 52;
   }
 
   public static class GripperConstants {
@@ -109,12 +94,12 @@ public final class Constants {
     public static final double SupplyCurrentLimit = 50.0;
     public static final double StatorCurrentLimit = 50.0;
 
-    public static final double RotorToSensorRatio = 80.0; //TODO: check this number please :3
+    public static final double RotorToSensorRatio = 89.1453;
     public static final double SensorToMechanismRatio = 1.0;
     public static final double VoltageClosedLoopRampPeriod = 0.5;
 
-    public static final Angle MinAngle = Degrees.of(90); // Actual: 0
-    public static final Angle MaxAngle = Degrees.of(180); // Actual: 210
+    public static final Angle MinAngle = Degrees.of(90); // TODO: Actual: 0
+    public static final Angle MaxAngle = Degrees.of(180); // TODO: Actual: 210
 
     public static class ArmPoses {
       public static final DashboardUnit<AngleUnit, Angle> StartingPose = new DashboardUnit<>("Poses/Starting", Degrees.of(90)); //TODO Tune all of these
