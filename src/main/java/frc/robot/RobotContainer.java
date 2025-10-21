@@ -39,6 +39,7 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.util.DriveDirection;
 
 import static edu.wpi.first.units.Units.Degrees;
 
@@ -170,7 +171,7 @@ public class RobotContainer {
                 m_swerveDrive,
                 () -> m_driver.getLeftY(),
                 () -> -m_driver.getLeftX(),
-                () -> new Rotation2d()));
+                () -> DriveDirection.Away.getAllianceAngle()));
 
     // Switch to X pattern when X button is pressed
     m_driver.x().onTrue(Commands.runOnce(m_swerveDrive::stopWithX, m_swerveDrive));
