@@ -18,7 +18,7 @@ public class ChaosCanCoder extends CANcoder {
    * Creates the new TalonFX wrapper WITHOUT simulation support.
    */
   public ChaosCanCoder(int canId) {
-    super(canId, CanIdentifiers.RioCANBus);;
+    super(canId, CanIdentifiers.CTRECANBus);
   }
 
   /**
