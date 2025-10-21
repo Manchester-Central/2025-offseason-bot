@@ -15,6 +15,8 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Rotations;
 
 import com.chaos131.util.DashboardUnit;
@@ -22,8 +24,10 @@ import com.chaos131.util.DashboardUnit;
 import edu.wpi.first.units.AngleUnit;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.RobotBase;
 
 /**
@@ -115,5 +119,43 @@ public final class Constants {
     public static final double RobotToQuestXInches = 2;
     public static final double RobotToQuestYInches = 4;
     public static final Rotation2d RobotToQuestRotation = new Rotation2d();
+  }
+
+  /** This contains constants for our robot dimensions. */
+  public static class RobotDimensions {
+    // Includes the Bumpers
+    public static final Distance FrontBackLength = Inches.of(25.5+3.25); // frames plus 3.25" bumpers
+    // Includes the Bumpers
+    public static final Distance SideSideLength = Inches.of(29.5+3.25); // frames plus 3.25" bumpers
+    // Margin between the robot and something to interact with
+    public static final Distance RobotToReefCoralMargin = Inches.of(1.5);
+  }
+
+  /** This contains constants for the field. */
+  public static class FieldDimensions {
+    // Value taken from Limelight fmap
+    public static final double FieldLength = 17.5482504;
+    // Value taken from Limelight fmap
+    public static final double FieldWidth = 8.0519016;
+    // Transform to the Driver Perspective Left Reef from the perspective of the April Tag
+    public static final Transform2d ReefBranchLeft =
+        new Transform2d(-0.0536, -0.1643, Rotation2d.fromDegrees(0));
+    // Transform to the Driver Perspective Right Reef from the perspective of the April Tag
+    public static final Transform2d ReefBranchRight =
+        new Transform2d(-0.0536, 0.1643, Rotation2d.fromDegrees(0));
+    // Trasform the Driver Perspective Center Reef from the perspective of the April Tag
+    public static final Transform2d ReefCenterBranch =
+        new Transform2d(-0.0536, 0, Rotation2d.fromDegrees(0));
+    // Value taken from field cad
+    public static final Distance TroughHeight = Meters.of(0.5175);
+    // Value taken from field cad
+    public static final Distance Reef1 = Meters.of(0.7763);
+    // Value taken from field cad
+    public static final Distance Reef2 = Meters.of(1.1794);
+    // Value taken from field cad
+    public static final Distance Reef3 = Meters.of(1.8287);
+    public static final Distance CoralWidth = Inches.of(4.5); 
+    // Distance between center of robot + safety +center of reef 
+    public static final Distance ReefScoringDistanceThreshold = Meters.of((RobotDimensions.FrontBackLength.in(Meters) / 2) + 0.912493).plus(Inches.of(13)); 
   }
 }
