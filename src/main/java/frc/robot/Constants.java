@@ -15,6 +15,7 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Rotations;
 
 import com.chaos131.util.DashboardUnit;
 
@@ -53,28 +54,14 @@ public final class Constants {
   public static class CanIdentifiers {
     // public static final String CTRECANBus = "CTRE bus";
     public static final String RioCANBus = "rio";
-
-    // Swerve (30s & 40s)
-    // public static final int FLSpeedCANID = 30;
-    // public static final int FLAngleCANID = 31;
-    // public static final int FLAbsoEncoCANID = 32;
-    // public static final int FRSpeedCANID = 33;
-    // public static final int FRAngleCANID = 34;
-    // public static final int FRAbsoEncoCANID = 35;
-    // public static final int BLSpeedCANID = 39;
-    // public static final int BLAngleCANID = 40;
-    // public static final int BLAbsoEncoCANID = 41;
-    // public static final int BRSpeedCANID = 36;
-    // public static final int BRAngleCANID = 37;
-    // public static final int BRAbsoEncoCANID = 38;
-    // public static final int GyroCANID = 45;
+    public static final String CTRECANBus = "canivore";
 
     // Arm (20s)
     public static final int ArmMotorCANID = 20;
     public static final int ArmCANcoderCANID = 21;
 
-    // Gripper (70s)
-    public static final int GripperMotorCANID = 52; // TODO: set on robot
+    // Gripper (50s)
+    public static final int GripperMotorCANID = 52;
   }
 
   public static class GripperConstants {
@@ -89,30 +76,30 @@ public final class Constants {
   }
 
   public static class ArmConstants {
-    public static final Angle canCoderOffsetAngle = Degrees.of(0.0); //TODO: add real value to this...
+    public static final Angle canCoderOffsetAngle = Rotations.of(-0.115);
 
     // TODO: Check all of these
-    public static final double kP = 0.0;
+    public static final double kP = 600.0;
     public static final double kI = 0.0;
-    public static final double kD = 0.0;
-    public static final double kG = 0.0;
-    public static final double kS = 0.0;
+    public static final double kD = 75.0;
+    public static final double kG = 0.18;
+    public static final double kS = 0.4;
     public static final double kV = 0.0;
     public static final double kA = 0.0;
 
-    public static final double MMCruiseVelocity = 10.0;
-    public static final double MMAcceleration = 10.0;
-    public static final double MMJerk = 10.0;
+    public static final double MMCruiseVelocity = 100.0;
+    public static final double MMAcceleration = 100.0;
+    public static final double MMJerk = 100.0;
 
     public static final double SupplyCurrentLimit = 50.0;
     public static final double StatorCurrentLimit = 50.0;
 
-    public static final double RotorToSensorRatio = 80.0; //TODO: check this number please :3
+    public static final double RotorToSensorRatio = 89.1453;
     public static final double SensorToMechanismRatio = 1.0;
-    public static final double VoltageClosedLoopRampPeriod = 0.5;
+    public static final double VoltageClosedLoopRampPeriod = 0.1;
 
-    public static final Angle MinAngle = Degrees.of(90); // Actual: 0
-    public static final Angle MaxAngle = Degrees.of(180); // Actual: 210
+    public static final Angle MinAngle = Degrees.of(10);
+    public static final Angle MaxAngle = Degrees.of(210); // TODO: Actual: 216
 
     public static class ArmPoses {
       public static final DashboardUnit<AngleUnit, Angle> StartingPose = new DashboardUnit<>("Poses/Starting", Degrees.of(90)); //TODO Tune all of these
