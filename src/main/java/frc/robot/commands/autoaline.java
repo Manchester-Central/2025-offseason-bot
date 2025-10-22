@@ -17,7 +17,6 @@ public class autoaline extends Command{
 
   @Override
   public void initialize() {
-    robot.
     //
   }
 }

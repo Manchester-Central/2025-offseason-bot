@@ -39,6 +39,8 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.util.FieldPoint;
+import frc.robot.util.PathUtil;
 
 import static edu.wpi.first.units.Units.Degrees;
 
@@ -83,6 +85,8 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    @SuppressWarnings("unused")
+    FieldPoint _dummy = FieldPoint.ReefPose10;
     switch (Constants.currentMode) {
       case REAL:
         // Real robot, instantiate hardware IO implementations
@@ -192,7 +196,8 @@ public class RobotContainer {
     m_driver.leftTrigger().whileTrue(new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.FloorIntakePose.get()), m_arm)
       .alongWith(new RunCommand(() -> m_gripper.setGripSpeed(-0.6), m_gripper)));
 
-    m_driver.rightBumper().whileTrue(new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.ScoreLowPose.get()), m_arm));
+    m_driver.rightBumper().whileTrue(new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.ScoreLowPose.get()), m_arm)
+    .alongWith (PathUtil.driveToPoseCommand(FieldPoint.ReefPose2,m_swerveDrive)));
 
     m_driver.rightTrigger().whileTrue(new RunCommand(() -> m_gripper.setGripSpeed(0.6), m_gripper));
 

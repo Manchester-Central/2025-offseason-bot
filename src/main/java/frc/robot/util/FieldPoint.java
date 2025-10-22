@@ -56,7 +56,7 @@ public class FieldPoint {
       new Pose2d(1.204913, 2.197100, Rotation2d.fromDegrees(180)));
   public static final FieldPoint CenterBarge = new FieldPoint("CenterBarge", 
       new Pose2d(Meters.of(7.4).in(Meters), 4, Rotation2d.fromDegrees(180)));
-      
+
 
   public static HashMap<Integer, AprilTag> aprilTagMap = FieldData.GetAprilTagMap("assets/frc2025.fmap");
 

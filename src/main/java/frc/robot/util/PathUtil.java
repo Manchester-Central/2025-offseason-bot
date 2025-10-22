@@ -35,8 +35,9 @@ public class PathUtil {
   }
 
   /**
-   * Drives to the Pose on the field (respective of the current alliance).
+   * Drives to the Pose on the field.
    */
+  @Deprecated
   public static Command driveToPoseCommand(Pose2d targetPostion, Drive swerveDrive) {
     return new DeferredCommand(
         () -> AutoBuilder.pathfindToPose(targetPostion, constraints, 0.0),
