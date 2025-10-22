@@ -23,6 +23,7 @@ import com.chaos131.util.DashboardNumber;
 import com.chaos131.util.DashboardUnit;
 
 import edu.wpi.first.units.AngleUnit;
+import edu.wpi.first.units.CurrentUnit;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
@@ -74,6 +75,7 @@ public final class Constants {
   public static class GripperConstants {
     public static final Current SupplyCurrentLimit = Amps.of(60); //TODO: double check the values soon...
     public static final Current StatorCurrentLimit = Amps.of(60); //TODO: double check the values soon...
+    public static final DashboardUnit<CurrentUnit, Current> CoralGrippedCurrentLimit = new DashboardUnit<>("CoralGrippedCurrentLimit", Amps.of(40.0)); //TODO check this
   }
 
   public static class SimArmConstants {
@@ -100,7 +102,6 @@ public final class Constants {
 
     public static final double SupplyCurrentLimit = 50.0;
     public static final double StatorCurrentLimit = 50.0;
-    public static final double CoralGrippedCurrentLimit = 40.0; //TODO check this
 
     public static final double RotorToSensorRatio = 89.1453;
     public static final double SensorToMechanismRatio = 1.0;

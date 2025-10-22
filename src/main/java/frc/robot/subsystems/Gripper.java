@@ -77,7 +77,7 @@ public class Gripper extends SubsystemBase {
 
   @Override
   public void periodic() {
-    boolean currentLimitReached = m_gripperMotor.getStatorCurrent().getValue().gt(Amps.of(ArmConstants.CoralGrippedCurrentLimit));
+    boolean currentLimitReached = m_gripperMotor.getStatorCurrent().getValue().gt(GripperConstants.CoralGrippedCurrentLimit.get());
     m_hasCoralGripped = currentLimitReached;
     //TODO: 
 
