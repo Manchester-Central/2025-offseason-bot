@@ -19,6 +19,7 @@ import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Rotations;
 
+import com.chaos131.util.DashboardNumber;
 import com.chaos131.util.DashboardUnit;
 
 import edu.wpi.first.units.AngleUnit;
@@ -52,6 +53,8 @@ public final class Constants {
 
   public static class GeneralConstants {
     public static final Pose2d DefaultStartingPose = new Pose2d(7.1, 2, Rotation2d.fromDegrees(180));
+
+    public static final double SlowModeModifier = 0.5;
   }
 
   /** This contains all of our constants for CAN IDs and Can Bus Names. */
@@ -97,6 +100,7 @@ public final class Constants {
 
     public static final double SupplyCurrentLimit = 50.0;
     public static final double StatorCurrentLimit = 50.0;
+    public static final double CoralGrippedCurrentLimit = 40.0; //TODO check this
 
     public static final double RotorToSensorRatio = 89.1453;
     public static final double SensorToMechanismRatio = 1.0;

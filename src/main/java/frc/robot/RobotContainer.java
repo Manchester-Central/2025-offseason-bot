@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Constants.GeneralConstants;
 import frc.robot.Constants.ArmConstants.ArmPoses;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
@@ -57,6 +58,9 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
+  private boolean m_scoringHigh = false;
+  private double m_currentSpeedModifier = 1.0;
+
   // Subsystems
   private final Quest m_quest;
   private final Drive m_swerveDrive;
@@ -158,7 +162,8 @@ public class RobotContainer {
             m_swerveDrive,
             () -> m_driver.getLeftY(),
             () -> -m_driver.getLeftX(),
-            () -> -m_driver.getRightX()));
+            () -> -m_driver.getRightX(),
+            () -> m_currentSpeedModifier));
 
     // Manual Arm Control
     m_arm.setDefaultCommand(new RunCommand(() -> m_arm.setSpeed(m_operator.getLeftY() * 0.5), m_arm));
@@ -171,7 +176,8 @@ public class RobotContainer {
                 m_swerveDrive,
                 () -> m_driver.getLeftY(),
                 () -> -m_driver.getLeftX(),
-                () -> DriveDirection.Away.getAllianceAngle()));
+                () -> DriveDirection.Away.getAllianceAngle(),
+                () -> m_currentSpeedModifier));
 
     // Switch to X pattern when X button is pressed
     m_driver.x().onTrue(Commands.runOnce(m_swerveDrive::stopWithX, m_swerveDrive));
@@ -189,18 +195,22 @@ public class RobotContainer {
 
     m_driver.leftBumper().whileTrue(new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.HPIntakePose.get()), m_arm)
       .alongWith(new RunCommand(() -> m_gripper.setGripSpeed(-0.6), m_gripper)));
-  
     m_driver.leftTrigger().whileTrue(new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.FloorIntakePose.get()), m_arm)
       .alongWith(new RunCommand(() -> m_gripper.setGripSpeed(-0.6), m_gripper)));
 
-    m_driver.rightBumper().whileTrue(new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.ScoreLowPose.get()), m_arm));
-
+    m_driver.rightBumper().whileTrue(new RunCommand(() -> m_arm.setTargetAngle(m_scoringHigh ? ArmPoses.ScoreHighPose.get() : ArmPoses.ScoreLowPose.get()), m_arm));
     m_driver.rightTrigger().whileTrue(new RunCommand(() -> m_gripper.setGripSpeed(0.6), m_gripper));
+
+    m_driver.leftStick().onTrue(new InstantCommand(() -> m_currentSpeedModifier = m_currentSpeedModifier < 1.0 ? 1.0 : GeneralConstants.SlowModeModifier));
+    m_driver.rightStick().onTrue(new InstantCommand(() -> m_currentSpeedModifier = m_currentSpeedModifier < 1.0 ? 1.0 : GeneralConstants.SlowModeModifier));
 
     m_driver.y().whileTrue(new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.DeAlgaePose.get()), m_arm)); // Add gripper control
 
     // Operator Controls
     m_operator.leftBumper().whileTrue(new RunCommand(() -> m_gripper.setGripSpeed(-0.6), m_gripper));
+
+    m_operator.povUp().onTrue(new InstantCommand(() -> m_scoringHigh = true));
+    m_operator.povDown().onTrue(new InstantCommand(() -> m_scoringHigh = false));
   }
 
   /**
