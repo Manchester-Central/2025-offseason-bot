@@ -124,11 +124,11 @@ public final class Constants {
   /** This contains constants for our robot dimensions. */
   public static class RobotDimensions {
     // Includes the Bumpers
-    public static final Distance FrontBackLength = Inches.of(25.5+3.25); // frames plus 3.25" bumpers
+    public static final Distance FrontBackLength = Inches.of(25.5+(3.25*2)); // frames plus 3.25" bumpers
     // Includes the Bumpers
-    public static final Distance SideSideLength = Inches.of(29.5+3.25); // frames plus 3.25" bumpers
+    public static final Distance SideSideLength = Inches.of(29.5+(3.25*2)); // frames plus 3.25" bumpers
     // Margin between the robot and something to interact with
-    public static final Distance RobotToReefCoralMargin = Inches.of(1.5);
+    public static final Distance RobotToReefMargin = Inches.of(4.5); 
   }
 
   /** This contains constants for the field. */

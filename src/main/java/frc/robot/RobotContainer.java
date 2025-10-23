@@ -197,7 +197,7 @@ public class RobotContainer {
       .alongWith(new RunCommand(() -> m_gripper.setGripSpeed(-0.6), m_gripper)));
 
     m_driver.rightBumper().whileTrue(new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.ScoreLowPose.get()), m_arm)
-    .alongWith (PathUtil.driveToPoseCommand(FieldPoint.ReefPose2,m_swerveDrive)));
+    .alongWith (PathUtil.driveToClosestPointTeleopCommandV2(FieldPoint.getReefDrivePoses(), m_swerveDrive)));
 
     m_driver.rightTrigger().whileTrue(new RunCommand(() -> m_gripper.setGripSpeed(0.6), m_gripper));
 
