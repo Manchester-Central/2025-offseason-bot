@@ -170,7 +170,8 @@ public class RobotContainer {
             () -> m_currentSpeedModifier));
 
     // Manual Arm Control
-    m_arm.setDefaultCommand(new RunCommand(() -> m_arm.setSpeed(m_operator.getLeftY() * 0.5), m_arm));
+    m_arm.setDefaultCommand(new RunCommand(() -> m_arm.setTargetAngle(m_gripper.hasCoral() ? ArmPoses.CoralGrippedPose.get() : ArmPoses.StowPose.get()), m_arm));
+    // m_arm.setDefaultCommand(new RunCommand(() -> m_arm.setSpeed(m_operator.getLeftY() * 0.5), m_arm));
 
     // Gripper Default
     m_gripper.setDefaultCommand(new RunCommand(() -> m_gripper.setGripSpeed(-0.4), m_gripper));
@@ -213,6 +214,9 @@ public class RobotContainer {
 
     m_driver.leftStick().onTrue(new InstantCommand(() -> m_currentSpeedModifier = m_currentSpeedModifier < 1.0 ? 1.0 : GeneralConstants.SlowModeModifier));
     m_driver.rightStick().onTrue(new InstantCommand(() -> m_currentSpeedModifier = m_currentSpeedModifier < 1.0 ? 1.0 : GeneralConstants.SlowModeModifier));
+
+    m_driver.back().whileTrue(DriveCommands.feedforwardCharacterization(m_swerveDrive));
+    m_driver.start().whileTrue(DriveCommands.wheelRadiusCharacterization(m_swerveDrive));
 
     m_driver.y().whileTrue(new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.DeAlgaePose.get()), m_arm)); // Add gripper control
 

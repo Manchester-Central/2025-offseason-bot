@@ -131,7 +131,7 @@ public class Arm extends SubsystemBase {
 
     m_motor.attachMotorSim(m_motorSim, ArmConstants.RotorToSensorRatio, ChassisReference.Clockwise_Positive, true);
     m_motor.attachCanCoderSim(m_canCoder);
-    m_motor.setSimAngle(ArmPoses.StartingPose.get());
+    m_motor.setSimAngle(ArmPoses.StowPose.get());
   }
 
   /**
