@@ -80,6 +80,8 @@ public final class Constants {
   }
 
   public static class ArmConstants {
+    public static final DashboardUnit<AngleUnit, Angle> AngleTolerance = new DashboardUnit<AngleUnit,Angle>("Arm/AngleTolerance", Degrees.of(1));
+
     public static final Angle canCoderOffsetAngle = Rotations.of(-0.115);
 
     // TODO: Check all of these

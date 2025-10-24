@@ -19,6 +19,7 @@ import org.littletonrobotics.junction.Logger;
 
 import com.chaos131.util.DashboardNumber;
 import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -64,6 +65,7 @@ public class Arm extends SubsystemBase {
       private DashboardNumber m_ki = m_talonTuner.tunable("kI", Robot.isSimulation() ? SimArmConstants.kI : ArmConstants.kI, (config, newValue) -> config.Slot0.kI = newValue);
       private DashboardNumber m_kd = m_talonTuner.tunable("kD", Robot.isSimulation() ? SimArmConstants.kD : ArmConstants.kD, (config, newValue) -> config.Slot0.kD = newValue);
       private DashboardNumber m_kg = m_talonTuner.tunable("kG", ArmConstants.kG, (config, newValue) -> config.Slot0.kG = newValue);
+      private DashboardNumber m_kg2 = m_talonTuner.tunable("kG2", ArmConstants.kG, (config, newValue) -> config.Slot1.kG = newValue);
       private DashboardNumber m_ks = m_talonTuner.tunable("kS", ArmConstants.kS, (config, newValue) -> config.Slot0.kS = newValue);
       private DashboardNumber m_kv = m_talonTuner.tunable("kV", ArmConstants.kV, (config, newValue) -> config.Slot0.kV = newValue);
       private DashboardNumber m_ka = m_talonTuner.tunable("kA", ArmConstants.kA, (config, newValue) -> config.Slot0.kA = newValue);
@@ -122,6 +124,9 @@ public class Arm extends SubsystemBase {
     slot0.GravityType = GravityTypeValue.Arm_Cosine;
     m_motor.Configuration.Slot0 = slot0;
 
+    var slot1 = new Slot1Configs();
+    slot1.kG = m_kg2.get(); 
+
     m_motor.applyConfig();
 
     m_motor.attachMotorSim(m_motorSim, ArmConstants.RotorToSensorRatio, ChassisReference.Clockwise_Positive, true);
@@ -152,9 +157,13 @@ public class Arm extends SubsystemBase {
     }
 
     m_targetAngle = newAngle;
-    
+
+    if (Math.abs(getCurrentAngle().minus(newAngle).in(Degrees)) < ArmConstants.AngleTolerance.get().in(Degrees)) {
+      m_motor.moveToPosition(newAngle.in(Rotations), 1);
+    } else {
+      m_motor.moveToPosition(newAngle.in(Rotations));
+    }
     // m_motor.moveToPositionMotionMagic(newAngle.in(Rotations)); // Rotation to match the cancoder units
-    m_motor.moveToPosition(newAngle.in(Rotations));
   }
 
   public Angle getCurrentAngle() {
