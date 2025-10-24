@@ -73,9 +73,9 @@ public final class Constants {
   }
 
   public static class GripperConstants {
-    public static final Current SupplyCurrentLimit = Amps.of(60); //TODO: double check the values soon...
-    public static final Current StatorCurrentLimit = Amps.of(60); //TODO: double check the values soon...
-    public static final DashboardUnit<CurrentUnit, Current> CoralGrippedCurrentLimit = new DashboardUnit<>("CoralGrippedCurrentLimit", Amps.of(40.0)); //TODO check this
+    public static final Current SupplyCurrentLimit = Amps.of(40); //TODO: double check the values soon...
+    public static final Current StatorCurrentLimit = Amps.of(40); //TODO: double check the values soon...
+    public static final DashboardUnit<CurrentUnit, Current> CoralGrippedCurrentLimit = new DashboardUnit<>("Gripper/CoralGrippedCurrentLimit", Amps.of(10.0)); //TODO check this
   }
 
   public static class SimArmConstants {
@@ -110,11 +110,11 @@ public final class Constants {
     public static final double VoltageClosedLoopRampPeriod = 0.1;
 
     public static final Angle MinAngle = Degrees.of(10);
-    public static final Angle MaxAngle = Degrees.of(210); // TODO: Actual: 216
+    public static final Angle MaxAngle = Degrees.of(215); // TODO: Actual: 216
 
     public static class ArmPoses {
       public static final DashboardUnit<AngleUnit, Angle> StartingPose = new DashboardUnit<>("Poses/Starting", Degrees.of(90)); //TODO Tune all of these
-      public static final DashboardUnit<AngleUnit, Angle> FloorIntakePose = new DashboardUnit<>("Poses/FloorIntake", Degrees.of(216));
+      public static final DashboardUnit<AngleUnit, Angle> FloorIntakePose = new DashboardUnit<>("Poses/FloorIntake", Degrees.of(214));
       public static final DashboardUnit<AngleUnit, Angle> HPIntakePose = new DashboardUnit<>("Poses/HPIntake", Degrees.of(115));
       public static final DashboardUnit<AngleUnit, Angle> ScoreLowPose = new DashboardUnit<>("Poses/ScoreLow", Degrees.of(12));
       public static final DashboardUnit<AngleUnit, Angle> ScoreHighPose = new DashboardUnit<>("Poses/ScoreHigh", Degrees.of(22));
