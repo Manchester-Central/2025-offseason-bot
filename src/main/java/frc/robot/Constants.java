@@ -90,9 +90,9 @@ public final class Constants {
     public static final Angle canCoderOffsetAngle = Rotations.of(-0.115);
 
     // TODO: Check all of these
-    public static final double kP = 600.0;
+    public static final double kP = 150.0;
     public static final double kI = 0.0;
-    public static final double kD = 75.0;
+    public static final double kD = 20.0;
     public static final double kG = 0.18;
     public static final double kS = 0.4;
     public static final double kV = 0.0;
