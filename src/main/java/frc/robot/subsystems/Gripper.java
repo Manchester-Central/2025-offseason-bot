@@ -16,6 +16,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.CanIdentifiers;
 import frc.robot.Constants.GripperConstants;
 import frc.robot.util.ChaosTalonFx;
@@ -81,7 +82,7 @@ public class Gripper extends SubsystemBase {
 
   @Override
   public void periodic() {
-    boolean currentLimitReached = m_gripperMotor.getStatorCurrent().getValue().gt(Amps.of(m_statorCurrentLimit.get() - 10.0));
+    boolean currentLimitReached = m_gripperMotor.getStatorCurrent().getValue().gt(GripperConstants.CoralGrippedCurrentLimit.get());
     m_hasCoralGripped = currentLimitReached;
     //TODO: 
 

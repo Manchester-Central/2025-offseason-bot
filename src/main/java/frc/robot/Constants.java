@@ -19,9 +19,11 @@ import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Rotations;
 
+import com.chaos131.util.DashboardNumber;
 import com.chaos131.util.DashboardUnit;
 
 import edu.wpi.first.units.AngleUnit;
+import edu.wpi.first.units.CurrentUnit;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
@@ -52,6 +54,8 @@ public final class Constants {
 
   public static class GeneralConstants {
     public static final Pose2d DefaultStartingPose = new Pose2d(7.1, 2, Rotation2d.fromDegrees(180));
+
+    public static final double SlowModeModifier = 0.5;
   }
 
   /** This contains all of our constants for CAN IDs and Can Bus Names. */
@@ -71,6 +75,7 @@ public final class Constants {
   public static class GripperConstants {
     public static final Current SupplyCurrentLimit = Amps.of(60); //TODO: double check the values soon...
     public static final Current StatorCurrentLimit = Amps.of(60); //TODO: double check the values soon...
+    public static final DashboardUnit<CurrentUnit, Current> CoralGrippedCurrentLimit = new DashboardUnit<>("CoralGrippedCurrentLimit", Amps.of(40.0)); //TODO check this
   }
 
   public static class SimArmConstants {
