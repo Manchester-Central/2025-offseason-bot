@@ -56,29 +56,32 @@ public class FieldPoint {
       new Pose2d(1.204913, 2.197100, Rotation2d.fromDegrees(180)));
   public static final FieldPoint CenterBarge = new FieldPoint("CenterBarge", 
       new Pose2d(Meters.of(7.4).in(Meters), 4, Rotation2d.fromDegrees(180)));
-      
 
-  public static HashMap<Integer, AprilTag> aprilTagMap = FieldData.GetAprilTagMap("assets/frc2025.fmap");
 
-  public static final FieldPoint ReefPose2 = new FieldPoint("reefPose2", aprilTagMap.get(22).pose2d);
-  public static final FieldPoint ReefPose4 = new FieldPoint("reefPose4", aprilTagMap.get(17).pose2d);
-  public static final FieldPoint ReefPose6 = new FieldPoint("reefPose6", aprilTagMap.get(18).pose2d);
-  public static final FieldPoint ReefPose8 = new FieldPoint("reefPose8", aprilTagMap.get(19).pose2d);
-  public static final FieldPoint ReefPose10 = new FieldPoint("reefPose10", aprilTagMap.get(20).pose2d);
-  public static final FieldPoint ReefPose12 = new FieldPoint("reefPose12", aprilTagMap.get(21).pose2d);
+  public static HashMap<Integer, AprilTag> aprilTagMap;
+  public static FieldPoint ReefPose2;
+  public static FieldPoint ReefPose4;
+  public static FieldPoint ReefPose6;
+  public static FieldPoint ReefPose8;
+  public static FieldPoint ReefPose10;
+  public static FieldPoint ReefPose12;
   // public static final FieldPoint ReefCenter = new FieldPoint("reefCenter", ReefPose2.getBluePose().interpolate(ReefPose8.getBluePose().rotateBy(Rotation2d.fromDegrees(180)), 0.5));
-  public static final FieldPoint ReefCenter = getMidPoint("reefCenter", ReefPose2, ReefPose8);
+  public static FieldPoint ReefCenter;
 
-  /**
-   * Creates a FieldPoint between two FieldPoints (ignores angles).
-   */
-  public static final FieldPoint getMidPoint(String newName, FieldPoint pointA, FieldPoint pointB) {
-    var x = (pointA.getBluePose().getX() + pointB.getBluePose().getX()) / 2.0;
-    var y = (pointA.getBluePose().getY() + pointB.getBluePose().getY()) / 2.0;
-    return new FieldPoint(newName, new Pose2d(x, y, Rotation2d.kZero));
-  }
+  public static Map<String, FieldPoint> ReefClockPoses;
 
-  public static Map<String, FieldPoint> ReefClockPoses = Map.ofEntries(
+  public static void loadAprilTagData() {
+    aprilTagMap = FieldData.GetAprilTagMap("frc2025.fmap");
+
+    ReefPose2 = new FieldPoint("reefPose2", aprilTagMap.get(22).pose2d);
+    ReefPose4 = new FieldPoint("reefPose4", aprilTagMap.get(17).pose2d);
+    ReefPose6 = new FieldPoint("reefPose6", aprilTagMap.get(18).pose2d);
+    ReefPose8 = new FieldPoint("reefPose8", aprilTagMap.get(19).pose2d);
+    ReefPose10 = new FieldPoint("reefPose10", aprilTagMap.get(20).pose2d);
+    ReefPose12 = new FieldPoint("reefPose12", aprilTagMap.get(21).pose2d);
+    ReefCenter = getMidPoint("reefCenter", ReefPose2, ReefPose8);
+
+    ReefClockPoses = Map.ofEntries(
       Map.entry("2L", getDrivePoseFromReefFace(ReefPose2.getBluePose(), true)),
       Map.entry("2R", getDrivePoseFromReefFace(ReefPose2.getBluePose(), false)),
       Map.entry("4L", getDrivePoseFromReefFace(ReefPose4.getBluePose(), false)),
@@ -91,7 +94,17 @@ public class FieldPoint {
       Map.entry("10R", getDrivePoseFromReefFace(ReefPose10.getBluePose(), false)),
       Map.entry("12L", getDrivePoseFromReefFace(ReefPose12.getBluePose(), true)),
       Map.entry("12R", getDrivePoseFromReefFace(ReefPose12.getBluePose(), false))
-  );
+    );
+  }
+
+  /**
+   * Creates a FieldPoint between two FieldPoints (ignores angles).
+   */
+  public static final FieldPoint getMidPoint(String newName, FieldPoint pointA, FieldPoint pointB) {
+    var x = (pointA.getBluePose().getX() + pointB.getBluePose().getX()) / 2.0;
+    var y = (pointA.getBluePose().getY() + pointB.getBluePose().getY()) / 2.0;
+    return new FieldPoint(newName, new Pose2d(x, y, Rotation2d.kZero));
+  }
 
   /**
    * Gets the april tabs for the blue reef.
@@ -133,7 +146,7 @@ public class FieldPoint {
   private static FieldPoint getDrivePoseFromReefFace(Pose2d aprilTagPose, boolean isRight) {
     Pose2d pose = aprilTagPose.transformBy(
         new Transform2d(
-            RobotDimensions.FrontBackLength.in(Meters) / 2 + RobotDimensions.RobotToReefCoralMargin.in(Meters),
+            RobotDimensions.FrontBackLength.in(Meters) / 2 + RobotDimensions.RobotToReefMargin.in(Meters),
             isRight ? FieldDimensions.ReefBranchRight.getY() : FieldDimensions.ReefBranchLeft.getY(),
             Rotation2d.fromDegrees(180)));
     return new FieldPoint("ReefDrivePose", pose);
@@ -168,7 +181,7 @@ public class FieldPoint {
     for (AprilTag aprilTag : blueReefAprilTags()) {
       Pose2d centerPose = aprilTag.pose2d.transformBy(
           new Transform2d(
-              RobotDimensions.FrontBackLength.in(Meters) / 2 + RobotDimensions.RobotToReefCoralMargin.in(Meters),
+              RobotDimensions.FrontBackLength.in(Meters) / 2 + RobotDimensions.RobotToReefMargin.in(Meters),
               FieldDimensions.ReefCenterBranch.getY(),
               Rotation2d.fromDegrees(180)));
       reefCenterDrivePose.add(new FieldPoint(aprilTag.id + " ReefCenter", centerPose));

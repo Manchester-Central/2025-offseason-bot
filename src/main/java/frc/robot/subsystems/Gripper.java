@@ -10,6 +10,8 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
 
 import com.chaos131.util.DashboardNumber;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.MotorArrangementValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj.util.Color8Bit;
@@ -19,10 +21,12 @@ import frc.robot.Constants.CanIdentifiers;
 import frc.robot.Constants.GripperConstants;
 import frc.robot.util.ChaosTalonFx;
 import frc.robot.util.ChaosTalonFxTuner;
+import frc.robot.util.ChaosTalonFxs;
+import frc.robot.util.ChaosTalonFxsTuner;
 
 public class Gripper extends SubsystemBase {
-  private ChaosTalonFx m_gripperMotor = new ChaosTalonFx(CanIdentifiers.GripperMotorCANID);
-  private ChaosTalonFxTuner m_gripperTuner = new ChaosTalonFxTuner("Gripper", m_gripperMotor);
+  private ChaosTalonFxs m_gripperMotor = new ChaosTalonFxs(CanIdentifiers.GripperMotorCANID);
+  private ChaosTalonFxsTuner m_gripperTuner = new ChaosTalonFxsTuner("Gripper", m_gripperMotor);
 
   private static boolean m_hasCoralGripped = false;
 
@@ -41,10 +45,11 @@ public class Gripper extends SubsystemBase {
     m_gripperMotor.Configuration.CurrentLimits.StatorCurrentLimit = m_statorCurrentLimit.get();
     m_gripperMotor.Configuration.CurrentLimits.SupplyCurrentLimitEnable = true;
     m_gripperMotor.Configuration.CurrentLimits.SupplyCurrentLimit = m_supplyCurrentLimit.get();
+    m_gripperMotor.Configuration.Commutation.MotorArrangement = MotorArrangementValue.Minion_JST;
 
     // m_gripperMotor.Configuration.CurrentLimits.SupplyCurrentLowerLimit = GripperConstants.CoralSupplyCurrentLowerLimit.in(Amps);
     // m_gripperMotor.Configuration.CurrentLimits.SupplyCurrentLowerTime = GripperConstants.CoralSupplyCurrentLowerTime.in(Seconds);
-    //m_gripperMotor.Configuration.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    m_gripperMotor.Configuration.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
     m_gripperMotor.Configuration.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     m_gripperMotor.applyConfig();

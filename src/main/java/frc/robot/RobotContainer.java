@@ -40,6 +40,8 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.util.FieldPoint;
+import frc.robot.util.PathUtil;
 import frc.robot.util.DriveDirection;
 
 import static edu.wpi.first.units.Units.Degrees;
@@ -88,6 +90,8 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    @SuppressWarnings("unused")
+    FieldPoint _dummy = FieldPoint.ReefPose10;
     switch (Constants.currentMode) {
       case REAL:
         // Real robot, instantiate hardware IO implementations
@@ -168,6 +172,9 @@ public class RobotContainer {
     // Manual Arm Control
     m_arm.setDefaultCommand(new RunCommand(() -> m_arm.setSpeed(m_operator.getLeftY() * 0.5), m_arm));
 
+    // Gripper Default
+    m_gripper.setDefaultCommand(new RunCommand(() -> m_gripper.setGripSpeed(-0.4), m_gripper));
+
     // Lock to 0° when A button is held
     m_driver
         .a()
@@ -197,6 +204,9 @@ public class RobotContainer {
       .alongWith(new RunCommand(() -> m_gripper.setGripSpeed(-0.6), m_gripper)));
     m_driver.leftTrigger().whileTrue(new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.FloorIntakePose.get()), m_arm)
       .alongWith(new RunCommand(() -> m_gripper.setGripSpeed(-0.6), m_gripper)));
+
+    // m_driver.rightBumper().whileTrue(new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.ScoreLowPose.get()), m_arm)
+    // .alongWith (PathUtil.driveToClosestPointTeleopCommandV2(FieldPoint.getReefDrivePoses(), m_swerveDrive)));
 
     m_driver.rightBumper().whileTrue(new RunCommand(() -> m_arm.setTargetAngle(m_scoringHigh ? ArmPoses.ScoreHighPose.get() : ArmPoses.ScoreLowPose.get()), m_arm));
     m_driver.rightTrigger().whileTrue(new RunCommand(() -> m_gripper.setGripSpeed(0.6), m_gripper));

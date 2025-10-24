@@ -10,10 +10,12 @@ import static edu.wpi.first.units.Units.Volts;
 import com.chaos131.pid.PIDFValue;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.configs.TalonFXSConfiguration;
 import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.hardware.TalonFXS;
 import com.ctre.phoenix6.sim.ChassisReference;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
@@ -25,7 +27,7 @@ import frc.robot.Robot;
 /**
  * A TalonFX wrapper with automatic simulation support and helper functions.
  */
-public class ChaosTalonFx extends TalonFX {
+public class ChaosTalonFxs extends TalonFXS {
   private double m_gearRatio;
   private DCMotorSim m_motorSimModel;
   private ChassisReference m_simDirection;
@@ -34,13 +36,13 @@ public class ChaosTalonFx extends TalonFX {
   private final PositionVoltage m_positionVoltage = new PositionVoltage(0);
   private final MotionMagicVoltage m_positionMotionMagicVoltage = new MotionMagicVoltage(0);
   private final DynamicMotionMagicVoltage m_positionDynamicMotionMagicVoltage = new DynamicMotionMagicVoltage(0, 0, 0, 0);
-  public final TalonFXConfiguration Configuration = new TalonFXConfiguration();
+  public final TalonFXSConfiguration Configuration = new TalonFXSConfiguration();
   private double m_lastUserSetSpeed = 0.0;
 
   /**
    * Creates the new TalonFX wrapper WITHOUT simulation support.
    */
-  public ChaosTalonFx(int canId) {
+  public ChaosTalonFxs(int canId) {
     super(canId, CanIdentifiers.CTRECANBus);
     this.m_gearRatio = 0.0;
     m_motorSimModel = null;
@@ -50,7 +52,7 @@ public class ChaosTalonFx extends TalonFX {
   /**
    * Creates the new TalonFX wrapper WITHOUT simulation support.
    */
-  public ChaosTalonFx(int canId, String canBus) {
+  public ChaosTalonFxs(int canId, String canBus) {
     super(canId, canBus);
     this.m_gearRatio = 0.0;
     m_motorSimModel = null;
@@ -109,7 +111,7 @@ public class ChaosTalonFx extends TalonFX {
     }
 
     var talonFxSim = getSimState();
-    talonFxSim.Orientation = m_simDirection;
+    // TODO: talonFxSim.Orientation = m_simDirection;
 
     // set the supply voltage of the TalonFX
     talonFxSim.setSupplyVoltage(RobotController.getBatteryVoltage());
