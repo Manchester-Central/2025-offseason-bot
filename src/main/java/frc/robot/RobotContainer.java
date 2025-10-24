@@ -166,6 +166,9 @@ public class RobotContainer {
     // Manual Arm Control
     m_arm.setDefaultCommand(new RunCommand(() -> m_arm.setSpeed(m_operator.getLeftY() * 0.5), m_arm));
 
+    // Gripper Default
+    m_gripper.setDefaultCommand(new RunCommand(() -> m_gripper.setGripSpeed(-0.4), m_gripper));
+
     // Lock to 0° when A button is held
     m_driver
         .a()
