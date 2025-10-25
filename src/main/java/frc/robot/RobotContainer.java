@@ -135,12 +135,14 @@ public class RobotContainer {
         break;
     }
     m_quest = new Quest(m_swerveDrive);
+    m_swerveDrive.setQuest(m_quest);
+
     // Set up auto routines
     NamedCommands.registerCommand("HPIntake", new HPIntakeCommand(m_arm, m_gripper));
     NamedCommands.registerCommand("ScorePrep", new ScorePrepCommand(m_arm));
     NamedCommands.registerCommand("Score", new ScoreCommand(m_arm, m_gripper));
     NamedCommands.registerCommand("ReefAutoAlign", PathUtil.driveToClosestPointTeleopCommandV2(FieldPoint.getReefDrivePoses(), m_swerveDrive));
-    
+
     m_autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
     // Set up SysId routines

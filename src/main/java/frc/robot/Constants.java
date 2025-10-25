@@ -124,8 +124,8 @@ public final class Constants {
   }
 
   public static class QuestNavConstants {
-    public static final double RobotToQuestXInches = 2;
-    public static final double RobotToQuestYInches = 4;
+    public static final double RobotToQuestXInches = 4;
+    public static final double RobotToQuestYInches = 0;
     public static final Rotation2d RobotToQuestRotation = new Rotation2d();
   }
 
