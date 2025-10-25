@@ -230,10 +230,11 @@ public class RobotContainer {
     m_driver.back().whileTrue(DriveCommands.feedforwardCharacterization(m_swerveDrive));
     m_driver.start().whileTrue(DriveCommands.wheelRadiusCharacterization(m_swerveDrive));
 
-    m_driver.y().whileTrue(new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.DeAlgaePose.get()), m_arm)); // Add gripper control
-
     // Operator Controls
     m_operator.leftBumper().whileTrue(new RunCommand(() -> m_gripper.setGripSpeed(-0.6), m_gripper));
+
+    m_operator.y().whileTrue(new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.DeAlgaePose.get()), m_arm)
+      .alongWith(new RunCommand(() -> m_gripper.setGripSpeed(0.6), m_gripper))); // Add gripper control
 
     m_operator.povUp().onTrue(new InstantCommand(() -> m_scoringHigh = true));
     m_operator.povDown().onTrue(new InstantCommand(() -> m_scoringHigh = false));
