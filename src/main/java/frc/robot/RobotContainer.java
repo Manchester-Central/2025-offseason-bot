@@ -15,6 +15,8 @@ package frc.robot;
 
 import com.chaos131.gamepads.Gamepad;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -30,6 +32,9 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.GeneralConstants;
 import frc.robot.Constants.ArmConstants.ArmPoses;
 import frc.robot.commands.DriveCommands;
+import frc.robot.commands.HPIntakeCommand;
+import frc.robot.commands.ScoreCommand;
+import frc.robot.commands.ScorePrepCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Gripper;
@@ -90,6 +95,9 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    m_arm = new Arm(m_armLigament);
+    m_gripper = new Gripper(m_gripperLigament);
+
     @SuppressWarnings("unused")
     FieldPoint _dummy = FieldPoint.ReefPose10;
     switch (Constants.currentMode) {
@@ -127,7 +135,14 @@ public class RobotContainer {
         break;
     }
     m_quest = new Quest(m_swerveDrive);
+    m_swerveDrive.setQuest(m_quest);
+
     // Set up auto routines
+    NamedCommands.registerCommand("HPIntake", new HPIntakeCommand(m_arm, m_gripper));
+    NamedCommands.registerCommand("ScorePrep", new ScorePrepCommand(m_arm));
+    NamedCommands.registerCommand("Score", new ScoreCommand(m_arm, m_gripper));
+    NamedCommands.registerCommand("ReefAutoAlign", PathUtil.driveToClosestPointTeleopCommandV2(FieldPoint.getReefDrivePoses(), m_swerveDrive));
+
     m_autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
     // Set up SysId routines
@@ -145,9 +160,6 @@ public class RobotContainer {
         "Drive SysId (Dynamic Forward)", m_swerveDrive.sysIdDynamic(SysIdRoutine.Direction.kForward));
     m_autoChooser.addOption(
         "Drive SysId (Dynamic Reverse)", m_swerveDrive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-
-    m_arm = new Arm(m_armLigament);
-    m_gripper = new Gripper(m_gripperLigament);
 
     // Configure the button bindings
     configureButtonBindings();
@@ -170,7 +182,8 @@ public class RobotContainer {
             () -> m_currentSpeedModifier));
 
     // Manual Arm Control
-    m_arm.setDefaultCommand(new RunCommand(() -> m_arm.setSpeed(m_operator.getLeftY() * 0.5), m_arm));
+    m_arm.setDefaultCommand(new RunCommand(() -> m_arm.setTargetAngle(m_gripper.hasCoral() ? ArmPoses.CoralGrippedPose.get() : ArmPoses.StowPose.get()), m_arm));
+    // m_arm.setDefaultCommand(new RunCommand(() -> m_arm.setSpeed(m_operator.getLeftY() * 0.5), m_arm));
 
     // Gripper Default
     m_gripper.setDefaultCommand(new RunCommand(() -> m_gripper.setGripSpeed(-0.4), m_gripper));
@@ -213,6 +226,9 @@ public class RobotContainer {
 
     m_driver.leftStick().onTrue(new InstantCommand(() -> m_currentSpeedModifier = m_currentSpeedModifier < 1.0 ? 1.0 : GeneralConstants.SlowModeModifier));
     m_driver.rightStick().onTrue(new InstantCommand(() -> m_currentSpeedModifier = m_currentSpeedModifier < 1.0 ? 1.0 : GeneralConstants.SlowModeModifier));
+
+    m_driver.back().whileTrue(DriveCommands.feedforwardCharacterization(m_swerveDrive));
+    m_driver.start().whileTrue(DriveCommands.wheelRadiusCharacterization(m_swerveDrive));
 
     m_driver.y().whileTrue(new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.DeAlgaePose.get()), m_arm)); // Add gripper control
 

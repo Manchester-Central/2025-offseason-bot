@@ -131,7 +131,7 @@ public class Arm extends SubsystemBase {
 
     m_motor.attachMotorSim(m_motorSim, ArmConstants.RotorToSensorRatio, ChassisReference.Clockwise_Positive, true);
     m_motor.attachCanCoderSim(m_canCoder);
-    m_motor.setSimAngle(ArmPoses.StartingPose.get());
+    m_motor.setSimAngle(ArmPoses.StowPose.get());
   }
 
   /**
@@ -162,8 +162,8 @@ public class Arm extends SubsystemBase {
       m_motor.moveToPosition(newAngle.in(Rotations), 1);
     } else {
       m_motor.moveToPosition(newAngle.in(Rotations));
+      // m_motor.moveToPositionMotionMagic(newAngle.in(Rotations)); // Rotation to match the cancoder units
     }
-    // m_motor.moveToPositionMotionMagic(newAngle.in(Rotations)); // Rotation to match the cancoder units
   }
 
   public Angle getCurrentAngle() {

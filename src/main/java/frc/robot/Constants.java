@@ -90,9 +90,9 @@ public final class Constants {
     public static final Angle canCoderOffsetAngle = Rotations.of(-0.115);
 
     // TODO: Check all of these
-    public static final double kP = 600.0;
+    public static final double kP = 150.0;
     public static final double kI = 0.0;
-    public static final double kD = 75.0;
+    public static final double kD = 20.0;
     public static final double kG = 0.18;
     public static final double kS = 0.4;
     public static final double kV = 0.0;
@@ -113,18 +113,19 @@ public final class Constants {
     public static final Angle MaxAngle = Degrees.of(215); // TODO: Actual: 216
 
     public static class ArmPoses {
-      public static final DashboardUnit<AngleUnit, Angle> StartingPose = new DashboardUnit<>("Poses/Starting", Degrees.of(90)); //TODO Tune all of these
-      public static final DashboardUnit<AngleUnit, Angle> FloorIntakePose = new DashboardUnit<>("Poses/FloorIntake", Degrees.of(214));
+      public static final DashboardUnit<AngleUnit, Angle> StowPose = new DashboardUnit<>("Poses/Stow", Degrees.of(90)); //TODO Tune all of these
+      public static final DashboardUnit<AngleUnit, Angle> CoralGrippedPose = new DashboardUnit<>("Poses/CoralGripped", Degrees.of(70));
+      public static final DashboardUnit<AngleUnit, Angle> FloorIntakePose = new DashboardUnit<>("Poses/FloorIntake", Degrees.of(213));
       public static final DashboardUnit<AngleUnit, Angle> HPIntakePose = new DashboardUnit<>("Poses/HPIntake", Degrees.of(115));
-      public static final DashboardUnit<AngleUnit, Angle> ScoreLowPose = new DashboardUnit<>("Poses/ScoreLow", Degrees.of(12));
+      public static final DashboardUnit<AngleUnit, Angle> ScoreLowPose = new DashboardUnit<>("Poses/ScoreLow", Degrees.of(22));
       public static final DashboardUnit<AngleUnit, Angle> ScoreHighPose = new DashboardUnit<>("Poses/ScoreHigh", Degrees.of(22));
       public static final DashboardUnit<AngleUnit, Angle> DeAlgaePose = new DashboardUnit<>("Poses/DeAlgae", Degrees.of(140));
     }
   }
 
   public static class QuestNavConstants {
-    public static final double RobotToQuestXInches = 2;
-    public static final double RobotToQuestYInches = 4;
+    public static final double RobotToQuestXInches = 4;
+    public static final double RobotToQuestYInches = 0;
     public static final Rotation2d RobotToQuestRotation = new Rotation2d();
   }
 
