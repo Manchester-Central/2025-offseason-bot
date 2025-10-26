@@ -42,10 +42,17 @@ public class Quest extends SubsystemBase {
   
   // To keep a reference of the swerve drive for sending pose updates
   private Drive m_swerveDrive;
-
+  private Pose2d robotPose = null;
+  private Pose2d questPose = null;
   // Constructor
   public Quest(Drive swerveDrive) {
     m_swerveDrive = swerveDrive;
+  }
+
+  public void resetPose(Pose2d newRobotPose) {
+    robotPose = newRobotPose;
+    questPose = robotPose.transformBy(robotToQuest);
+    questNav.setPose(questPose);
   }
 
   @Override
@@ -59,8 +66,10 @@ public class Quest extends SubsystemBase {
     // Logger.recordOutput("Quest/hasSetPose", hasSetPose);
     // Logger.recordOutput("Quest/isResetActive", isResetActive);
     // Logger.recordOutput("Quest/planB", planB);
-    Pose2d robotPose = null;
-    Pose2d questPose = null;
+
+    robotPose = null;
+    questPose = null;
+
     if (poseFrames.length > 0) {
        questPose = poseFrames[poseFrames.length - 1].questPose();
        robotPose = questPose.transformBy(robotToQuest.inverse());
@@ -91,7 +100,7 @@ public class Quest extends SubsystemBase {
         robotPose3d = questPose3d.transformBy(new Transform3d(robotToQuest.inverse()));
 
         // Add the measurement to our estimator
-        m_swerveDrive.addVisionMeasurement(robotPose3d.toPose2d(),timestamp,QUESTNAV_STD_DEVS ); //TODO Find a better way to get a Pose3d value.
+        m_swerveDrive.addVisionMeasurement(robotPose3d.toPose2d(),timestamp,QUESTNAV_STD_DEVS); //TODO Find a better way to get a Pose3d value.
       }
     } 
   }

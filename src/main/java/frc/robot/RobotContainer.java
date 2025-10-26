@@ -15,21 +15,28 @@ package frc.robot;
 
 import com.chaos131.gamepads.Gamepad;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Constants.GeneralConstants;
+import frc.robot.Constants.GripperConstants;
 import frc.robot.Constants.ArmConstants.ArmPoses;
 import frc.robot.commands.DriveCommands;
+import frc.robot.commands.HPIntakeCommand;
+import frc.robot.commands.ScoreCommand;
+import frc.robot.commands.ScorePrepCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Gripper;
@@ -46,6 +53,9 @@ import frc.robot.subsystems.drive.ModuleIOTalonFXSim;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.littletonrobotics.junction.Logger;
+import frc.robot.util.FieldPoint;
+import frc.robot.util.PathUtil;
+import frc.robot.util.DriveDirection;
 
 import static edu.wpi.first.units.Units.Degrees;
 
@@ -63,6 +73,10 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
+  private boolean m_scoringHigh = false;
+  private boolean m_isAutoAlign = true;
+  private double m_currentSpeedModifier = 1.0;
+
   // Subsystems
   private final Quest m_quest;
   // private final Vision m_vision; // If we do use a limelight
@@ -94,6 +108,11 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    m_arm = new Arm(m_armLigament);
+    m_gripper = new Gripper(m_gripperLigament);
+
+    @SuppressWarnings("unused")
+    FieldPoint _dummy = FieldPoint.ReefPose10;
     switch (Constants.currentMode) {
       case REAL:
         // Real robot, instantiate hardware IO implementations
@@ -134,7 +153,14 @@ public class RobotContainer {
         break;
     }
     m_quest = new Quest(m_swerveDrive);
+    m_swerveDrive.setQuest(m_quest);
+
     // Set up auto routines
+    NamedCommands.registerCommand("HPIntake", new HPIntakeCommand(m_arm, m_gripper));
+    NamedCommands.registerCommand("ScorePrep", new ScorePrepCommand(m_arm, m_gripper));
+    NamedCommands.registerCommand("Score", new ScoreCommand(m_arm, m_gripper));
+    NamedCommands.registerCommand("ReefAutoAlign", PathUtil.driveToClosestPointTeleopCommandV2(FieldPoint.getReefDrivePoses(), m_swerveDrive));
+
     m_autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
     // Set up SysId routines
@@ -153,9 +179,6 @@ public class RobotContainer {
     m_autoChooser.addOption(
         "Drive SysId (Dynamic Reverse)", m_swerveDrive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
-    m_arm = new Arm(m_armLigament);
-    m_gripper = new Gripper(m_gripperLigament);
-
     // Configure the button bindings
     configureButtonBindings();
   }
@@ -173,7 +196,15 @@ public class RobotContainer {
             m_swerveDrive,
             () -> m_driver.getLeftY(),
             () -> -m_driver.getLeftX(),
-            () -> -m_driver.getRightX()));
+            () -> -m_driver.getRightX(),
+            () -> m_currentSpeedModifier));
+
+    // Manual Arm Control
+    m_arm.setDefaultCommand(new RunCommand(() -> m_arm.setTargetAngle(m_gripper.hasCoral() ? ArmPoses.CoralGrippedPose.get() : ArmPoses.StowPose.get()), m_arm));
+    // m_arm.setDefaultCommand(new RunCommand(() -> m_arm.setSpeed(m_operator.getLeftY() * 0.5), m_arm));
+
+    // Gripper Default
+    m_gripper.setDefaultCommand(new RunCommand(() -> m_gripper.setGripSpeed(GripperConstants.PassiveIntakeSpeed.get()), m_gripper));
 
     // Lock to 0° when A button is held
     m_driver
@@ -183,7 +214,8 @@ public class RobotContainer {
                 m_swerveDrive,
                 () -> m_driver.getLeftY(),
                 () -> -m_driver.getLeftX(),
-                () -> new Rotation2d()));
+                () -> DriveDirection.Away.getAllianceAngle(),
+                () -> m_currentSpeedModifier));
 
     // Switch to X pattern when X button is pressed
     m_driver.x().onTrue(Commands.runOnce(m_swerveDrive::stopWithX, m_swerveDrive));
@@ -199,14 +231,58 @@ public class RobotContainer {
                     m_swerveDrive)
                 .ignoringDisable(true));
 
-    m_arm.setDefaultCommand(new RunCommand(() -> m_arm.setSpeed(m_operator.getLeftY() * 0.5), m_arm));
+    m_driver.leftBumper().whileTrue(new ConditionalCommand(
+      new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.HPIntakePose.get()), m_arm)
+        .alongWith(PathUtil.driveToClosestPointTeleopCommandV2(FieldPoint.getHpDrivePoses(), m_swerveDrive)
+        .alongWith(new RunCommand(() -> m_gripper.setGripSpeed(GripperConstants.ActiveIntakeSpeed.get()), m_gripper))), 
+      new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.HPIntakePose.get()), m_arm)
+        .alongWith(
+          DriveCommands.joystickDrive(
+            m_swerveDrive,
+            () -> m_driver.getLeftY(),
+            () -> -m_driver.getLeftX(),
+            () -> -m_driver.getRightX(),
+            () -> m_currentSpeedModifier)
+        .alongWith(new RunCommand(() -> m_gripper.setGripSpeed(GripperConstants.ActiveIntakeSpeed.get()), m_gripper))), 
+      () -> m_isAutoAlign));
+    m_driver.leftTrigger().whileTrue(new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.FloorIntakePose.get()), m_arm)
+      .alongWith(new RunCommand(() -> m_gripper.setGripSpeed(GripperConstants.ActiveIntakeSpeed.get()), m_gripper)));
 
-    m_driver.leftTrigger().whileTrue(new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.HPIntakePose.get()), m_arm)
-      .alongWith(new InstantCommand(() -> m_gripper.setGripSpeed(-0.6), m_gripper)));
+    // m_driver.rightBumper().whileTrue(new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.ScoreLowPose.get()), m_arm)
+    // .alongWith (PathUtil.driveToClosestPointTeleopCommandV2(FieldPoint.getReefDrivePoses(), m_swerveDrive)));
 
-    m_driver.rightBumper().whileTrue(new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.ScoreLowPose.get()), m_arm));
+    m_driver.rightBumper().whileTrue(new ConditionalCommand(
+      new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.ScoreLowPose.get()), m_arm)
+        .alongWith(PathUtil.driveToClosestPointTeleopCommandV2(FieldPoint.getReefDrivePoses(), m_swerveDrive)), 
+      new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.ScoreLowPose.get()), m_arm)
+        .alongWith(
+          DriveCommands.joystickDrive(
+            m_swerveDrive,
+            () -> m_driver.getLeftY(),
+            () -> -m_driver.getLeftX(),
+            () -> -m_driver.getRightX(),
+            () -> m_currentSpeedModifier)), 
+      () -> m_isAutoAlign));
+    m_driver.rightTrigger().whileTrue(new RunCommand(() -> m_gripper.setGripSpeed(GripperConstants.OuttakeSpeed.get()), m_gripper));
 
-    m_driver.rightTrigger().whileTrue(new RunCommand(() -> m_gripper.setGripSpeed(0.6), m_gripper));
+    m_driver.leftStick().onTrue(new InstantCommand(() -> m_currentSpeedModifier = m_currentSpeedModifier < 1.0 ? 1.0 : GeneralConstants.SlowModeModifier));
+    m_driver.rightStick().onTrue(new InstantCommand(() -> m_currentSpeedModifier = m_currentSpeedModifier < 1.0 ? 1.0 : GeneralConstants.SlowModeModifier));
+
+    m_driver.back().whileTrue(DriveCommands.feedforwardCharacterization(m_swerveDrive));
+    m_driver.start().whileTrue(DriveCommands.wheelRadiusCharacterization(m_swerveDrive));
+
+    // Operator Controls
+    m_operator.leftBumper().whileTrue(new RunCommand(() -> m_gripper.setGripSpeed(GripperConstants.ActiveIntakeSpeed.get()), m_gripper));
+
+    m_operator.y().whileTrue(new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.DeAlgaePose.get()), m_arm)
+      .alongWith(new RunCommand(() -> m_gripper.setGripSpeed(GripperConstants.OuttakeSpeed.get()), m_gripper))); // Add gripper control
+    m_operator.a().whileTrue(new InstantCommand(() -> {
+      m_isAutoAlign = !m_isAutoAlign;
+      Logger.recordOutput("IsAutoAlign", m_isAutoAlign);
+    }));
+
+    m_operator.povUp().onTrue(new InstantCommand(() -> m_scoringHigh = true));
+    m_operator.povDown().onTrue(new InstantCommand(() -> m_scoringHigh = false));
   }
 
   /**

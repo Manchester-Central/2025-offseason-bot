@@ -19,6 +19,7 @@ import org.littletonrobotics.junction.Logger;
 
 import com.chaos131.util.DashboardNumber;
 import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -64,6 +65,7 @@ public class Arm extends SubsystemBase {
       private DashboardNumber m_ki = m_talonTuner.tunable("kI", Robot.isSimulation() ? SimArmConstants.kI : ArmConstants.kI, (config, newValue) -> config.Slot0.kI = newValue);
       private DashboardNumber m_kd = m_talonTuner.tunable("kD", Robot.isSimulation() ? SimArmConstants.kD : ArmConstants.kD, (config, newValue) -> config.Slot0.kD = newValue);
       private DashboardNumber m_kg = m_talonTuner.tunable("kG", ArmConstants.kG, (config, newValue) -> config.Slot0.kG = newValue);
+      private DashboardNumber m_kg2 = m_talonTuner.tunable("kG2", ArmConstants.kG, (config, newValue) -> config.Slot1.kG = newValue);
       private DashboardNumber m_ks = m_talonTuner.tunable("kS", ArmConstants.kS, (config, newValue) -> config.Slot0.kS = newValue);
       private DashboardNumber m_kv = m_talonTuner.tunable("kV", ArmConstants.kV, (config, newValue) -> config.Slot0.kV = newValue);
       private DashboardNumber m_ka = m_talonTuner.tunable("kA", ArmConstants.kA, (config, newValue) -> config.Slot0.kA = newValue);
@@ -91,9 +93,9 @@ public class Arm extends SubsystemBase {
     m_ligament.setColor(new Color8Bit(150, 150, 150));
     m_ligament.setLineWeight(3);
 
-    m_canCoder.Configuration.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1;
-    m_canCoder.Configuration.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive; // TODO: Check this value
-    m_canCoder.Configuration.MagnetSensor.MagnetOffset = Degrees.of(m_canCoderOffsetDegrees.get()).in(Rotations); // TODO: Check this value
+    m_canCoder.Configuration.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.75;
+    m_canCoder.Configuration.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
+    m_canCoder.Configuration.MagnetSensor.MagnetOffset = Degrees.of(m_canCoderOffsetDegrees.get()).in(Rotations);
     m_canCoder.applyConfig();
 
     m_motor.Configuration.MotorOutput.NeutralMode = NeutralModeValue.Brake;
@@ -103,7 +105,7 @@ public class Arm extends SubsystemBase {
     m_motor.Configuration.CurrentLimits.StatorCurrentLimitEnable = true;
     m_motor.Configuration.CurrentLimits.StatorCurrentLimit = m_statorCurrentLimit.get();
     m_motor.Configuration.Feedback.FeedbackRemoteSensorID = CanIdentifiers.ArmCANcoderCANID;
-    m_motor.Configuration.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder; // TODO: Check Value
+    m_motor.Configuration.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
     m_motor.Configuration.Feedback.RotorToSensorRatio = m_rotorToSensorRatio.get();
     m_motor.Configuration.ClosedLoopRamps.VoltageClosedLoopRampPeriod = m_rampPeriod.get();
     m_motor.Configuration.Feedback.SensorToMechanismRatio = m_sensorToMechRatio.get();
@@ -122,11 +124,14 @@ public class Arm extends SubsystemBase {
     slot0.GravityType = GravityTypeValue.Arm_Cosine;
     m_motor.Configuration.Slot0 = slot0;
 
+    var slot1 = new Slot1Configs();
+    slot1.kG = m_kg2.get(); 
+
     m_motor.applyConfig();
 
     m_motor.attachMotorSim(m_motorSim, ArmConstants.RotorToSensorRatio, ChassisReference.Clockwise_Positive, true);
     m_motor.attachCanCoderSim(m_canCoder);
-    m_motor.setSimAngle(ArmPoses.StartingPose.get());
+    m_motor.setSimAngle(ArmPoses.StowPose.get());
   }
 
   /**
@@ -152,8 +157,13 @@ public class Arm extends SubsystemBase {
     }
 
     m_targetAngle = newAngle;
-    
-    m_motor.moveToPositionMotionMagic(newAngle.in(Rotations)); // Rotation to match the cancoder units
+
+    if (Math.abs(getCurrentAngle().minus(newAngle).in(Degrees)) < ArmConstants.AngleTolerance.get().in(Degrees)) {
+      m_motor.moveToPosition(newAngle.in(Rotations), 1);
+    } else {
+      m_motor.moveToPosition(newAngle.in(Rotations));
+      // m_motor.moveToPositionMotionMagic(newAngle.in(Rotations)); // Rotation to match the cancoder units
+    }
   }
 
   public Angle getCurrentAngle() {
