@@ -100,7 +100,7 @@ public class Quest extends SubsystemBase {
         robotPose3d = questPose3d.transformBy(new Transform3d(robotToQuest.inverse()));
 
         // Add the measurement to our estimator
-        m_swerveDrive.addVisionMeasurement(robotPose3d.toPose2d(),timestamp,QUESTNAV_STD_DEVS ); //TODO Find a better way to get a Pose3d value.
+        m_swerveDrive.addVisionMeasurement(robotPose3d.toPose2d(),timestamp,QUESTNAV_STD_DEVS); //TODO Find a better way to get a Pose3d value.
       }
     } 
   }

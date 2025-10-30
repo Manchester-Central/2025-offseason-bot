@@ -4,7 +4,12 @@
 
 package frc.robot.commands;
 
+import java.util.concurrent.TimeUnit;
+
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Robot;
 import frc.robot.Constants.ArmConstants.ArmPoses;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Gripper;
@@ -13,6 +18,7 @@ import frc.robot.subsystems.Gripper;
 public class ScoreCommand extends Command {
   private Arm m_arm;
   private Gripper m_gripper;
+  private double m_startTime;
 
   /** Creates a new ScorePrep. */
   public ScoreCommand(Arm arm, Gripper gripper) {
@@ -24,7 +30,9 @@ public class ScoreCommand extends Command {
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    m_startTime = Timer.getFPGATimestamp();
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
@@ -42,6 +50,6 @@ public class ScoreCommand extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return m_arm.atTarget() && !m_gripper.hasCoral();
+    return m_arm.atTarget() && !m_gripper.hasCoral() && Timer.getFPGATimestamp() - m_startTime > 2;
   }
 }

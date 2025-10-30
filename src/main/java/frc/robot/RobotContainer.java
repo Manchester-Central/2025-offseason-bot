@@ -26,10 +26,12 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.GeneralConstants;
+import frc.robot.Constants.GripperConstants;
 import frc.robot.Constants.ArmConstants.ArmPoses;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.HPIntakeCommand;
@@ -66,6 +68,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  */
 public class RobotContainer {
   private boolean m_scoringHigh = false;
+  private boolean m_isAutoAlign = true;
   private double m_currentSpeedModifier = 1.0;
 
   // Subsystems
@@ -139,7 +142,7 @@ public class RobotContainer {
 
     // Set up auto routines
     NamedCommands.registerCommand("HPIntake", new HPIntakeCommand(m_arm, m_gripper));
-    NamedCommands.registerCommand("ScorePrep", new ScorePrepCommand(m_arm));
+    NamedCommands.registerCommand("ScorePrep", new ScorePrepCommand(m_arm, m_gripper));
     NamedCommands.registerCommand("Score", new ScoreCommand(m_arm, m_gripper));
     NamedCommands.registerCommand("ReefAutoAlign", PathUtil.driveToClosestPointTeleopCommandV2(FieldPoint.getReefDrivePoses(), m_swerveDrive));
 
@@ -165,6 +168,15 @@ public class RobotContainer {
     configureButtonBindings();
   }
 
+  private Command getDefaultSwerveCommand() {
+    return DriveCommands.joystickDrive(
+      m_swerveDrive,
+      () -> m_driver.getLeftY(),
+      () -> -m_driver.getLeftX(),
+      () -> -m_driver.getRightX(),
+      () -> m_currentSpeedModifier);
+  }
+
   /**
    * Use this method to define your button->command mappings. Buttons can be created by
    * instantiating a {@link GenericHID} or one of its subclasses ({@link
@@ -173,20 +185,14 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     // Default command, normal field-relative drive
-    m_swerveDrive.setDefaultCommand(
-        DriveCommands.joystickDrive(
-            m_swerveDrive,
-            () -> m_driver.getLeftY(),
-            () -> -m_driver.getLeftX(),
-            () -> -m_driver.getRightX(),
-            () -> m_currentSpeedModifier));
+    m_swerveDrive.setDefaultCommand(getDefaultSwerveCommand());
 
     // Manual Arm Control
     m_arm.setDefaultCommand(new RunCommand(() -> m_arm.setTargetAngle(m_gripper.hasCoral() ? ArmPoses.CoralGrippedPose.get() : ArmPoses.StowPose.get()), m_arm));
     // m_arm.setDefaultCommand(new RunCommand(() -> m_arm.setSpeed(m_operator.getLeftY() * 0.5), m_arm));
 
     // Gripper Default
-    m_gripper.setDefaultCommand(new RunCommand(() -> m_gripper.setGripSpeed(-0.4), m_gripper));
+    m_gripper.setDefaultCommand(new RunCommand(() -> m_gripper.setGripSpeed(GripperConstants.PassiveIntakeSpeed.get()), m_gripper));
 
     // Lock to 0° when A button is held
     m_driver
@@ -213,16 +219,27 @@ public class RobotContainer {
                     m_swerveDrive)
                 .ignoringDisable(true));
 
-    m_driver.leftBumper().whileTrue(new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.HPIntakePose.get()), m_arm)
-      .alongWith(new RunCommand(() -> m_gripper.setGripSpeed(-0.6), m_gripper)));
+    m_driver.leftBumper().whileTrue(new ConditionalCommand(
+      new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.HPIntakePose.get()), m_arm)
+        .alongWith(PathUtil.driveToClosestPointTeleopCommandV2(FieldPoint.getHpDrivePoses(), m_swerveDrive))
+        .alongWith(new RunCommand(() -> m_gripper.setGripSpeed(GripperConstants.ActiveIntakeSpeed.get()), m_gripper)), 
+      new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.HPIntakePose.get()), m_arm)
+        .alongWith(getDefaultSwerveCommand())
+        .alongWith(new RunCommand(() -> m_gripper.setGripSpeed(GripperConstants.ActiveIntakeSpeed.get()), m_gripper)), 
+      () -> m_isAutoAlign));
     m_driver.leftTrigger().whileTrue(new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.FloorIntakePose.get()), m_arm)
-      .alongWith(new RunCommand(() -> m_gripper.setGripSpeed(-0.6), m_gripper)));
+      .alongWith(new RunCommand(() -> m_gripper.setGripSpeed(GripperConstants.ActiveIntakeSpeed.get()), m_gripper)));
 
     // m_driver.rightBumper().whileTrue(new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.ScoreLowPose.get()), m_arm)
     // .alongWith (PathUtil.driveToClosestPointTeleopCommandV2(FieldPoint.getReefDrivePoses(), m_swerveDrive)));
 
-    m_driver.rightBumper().whileTrue(new RunCommand(() -> m_arm.setTargetAngle(m_scoringHigh ? ArmPoses.ScoreHighPose.get() : ArmPoses.ScoreLowPose.get()), m_arm));
-    m_driver.rightTrigger().whileTrue(new RunCommand(() -> m_gripper.setGripSpeed(0.6), m_gripper));
+    m_driver.rightBumper().whileTrue(new ConditionalCommand(
+      new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.ScoreLowPose.get()), m_arm)
+        .alongWith(PathUtil.driveToClosestPointTeleopCommandV2(FieldPoint.getReefDrivePoses(), m_swerveDrive)), 
+      new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.ScoreLowPose.get()), m_arm)
+        .alongWith(getDefaultSwerveCommand()),
+      () -> m_isAutoAlign));
+    m_driver.rightTrigger().whileTrue(new RunCommand(() -> m_gripper.setGripSpeed(GripperConstants.OuttakeSpeed.get()), m_gripper));
 
     m_driver.leftStick().onTrue(new InstantCommand(() -> m_currentSpeedModifier = m_currentSpeedModifier < 1.0 ? 1.0 : GeneralConstants.SlowModeModifier));
     m_driver.rightStick().onTrue(new InstantCommand(() -> m_currentSpeedModifier = m_currentSpeedModifier < 1.0 ? 1.0 : GeneralConstants.SlowModeModifier));
@@ -230,10 +247,15 @@ public class RobotContainer {
     m_driver.back().whileTrue(DriveCommands.feedforwardCharacterization(m_swerveDrive));
     m_driver.start().whileTrue(DriveCommands.wheelRadiusCharacterization(m_swerveDrive));
 
-    m_driver.y().whileTrue(new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.DeAlgaePose.get()), m_arm)); // Add gripper control
-
     // Operator Controls
-    m_operator.leftBumper().whileTrue(new RunCommand(() -> m_gripper.setGripSpeed(-0.6), m_gripper));
+    m_operator.leftBumper().whileTrue(new RunCommand(() -> m_gripper.setGripSpeed(GripperConstants.ActiveIntakeSpeed.get()), m_gripper));
+
+    m_operator.y().whileTrue(new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.DeAlgaePose.get()), m_arm)
+      .alongWith(new RunCommand(() -> m_gripper.setGripSpeed(GripperConstants.OuttakeSpeed.get()), m_gripper))); // Add gripper control
+    m_operator.a().whileTrue(new InstantCommand(() -> {
+      m_isAutoAlign = !m_isAutoAlign;
+      Logger.recordOutput("IsAutoAlign", m_isAutoAlign);
+    }));
 
     m_operator.povUp().onTrue(new InstantCommand(() -> m_scoringHigh = true));
     m_operator.povDown().onTrue(new InstantCommand(() -> m_scoringHigh = false));

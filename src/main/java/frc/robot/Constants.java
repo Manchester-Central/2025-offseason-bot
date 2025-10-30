@@ -76,6 +76,9 @@ public final class Constants {
     public static final Current SupplyCurrentLimit = Amps.of(40); //TODO: double check the values soon...
     public static final Current StatorCurrentLimit = Amps.of(40); //TODO: double check the values soon...
     public static final DashboardUnit<CurrentUnit, Current> CoralGrippedCurrentLimit = new DashboardUnit<>("Gripper/CoralGrippedCurrentLimit", Amps.of(10.0)); //TODO check this
+    public static final DashboardNumber ActiveIntakeSpeed = new DashboardNumber("Gripper/ActiveIntake", -0.6, true, (x) -> {});
+    public static final DashboardNumber PassiveIntakeSpeed = new DashboardNumber("Gripper/PassiveIntake", -0.4, true, (x) -> {});
+    public static final DashboardNumber OuttakeSpeed = new DashboardNumber("Gripper/Outtake", 0.4, true, (x) -> {});
   }
 
   public static class SimArmConstants {
@@ -136,7 +139,7 @@ public final class Constants {
     // Includes the Bumpers
     public static final Distance SideSideLength = Inches.of(29.5+(3.25*2)); // frames plus 3.25" bumpers
     // Margin between the robot and something to interact with
-    public static final Distance RobotToReefMargin = Inches.of(4.5); 
+    public static final Distance RobotToReefMargin = Inches.of(2.5); 
   }
 
   /** This contains constants for the field. */

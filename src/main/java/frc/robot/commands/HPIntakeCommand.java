@@ -5,6 +5,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants.GripperConstants;
 import frc.robot.Constants.ArmConstants.ArmPoses;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Gripper;
@@ -30,7 +31,7 @@ public class HPIntakeCommand extends Command {
   @Override
   public void execute() {
     m_arm.setTargetAngle(ArmPoses.HPIntakePose.get());
-    m_gripper.setGripSpeed(0.6);
+    m_gripper.setGripSpeed(GripperConstants.ActiveIntakeSpeed.get());
   }
 
   // Called once the command ends or is interrupted.
