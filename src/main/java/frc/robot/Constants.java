@@ -18,15 +18,18 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.Seconds;
 
 import com.chaos131.util.DashboardNumber;
 import com.chaos131.util.DashboardUnit;
 
 import edu.wpi.first.units.AngleUnit;
 import edu.wpi.first.units.CurrentUnit;
+import edu.wpi.first.units.TimeUnit;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -79,6 +82,7 @@ public final class Constants {
     public static final DashboardNumber ActiveIntakeSpeed = new DashboardNumber("Gripper/ActiveIntake", -0.6, true, (x) -> {});
     public static final DashboardNumber PassiveIntakeSpeed = new DashboardNumber("Gripper/PassiveIntake", -0.4, true, (x) -> {});
     public static final DashboardNumber OuttakeSpeed = new DashboardNumber("Gripper/Outtake", 0.4, true, (x) -> {});
+    public static final DashboardUnit<TimeUnit, Time> AutoOuttakeTime = new DashboardUnit<TimeUnit,Time>("Gripper/AutoOuttakeTime", Seconds.of(0.4));
   }
 
   public static class SimArmConstants {

@@ -4,12 +4,15 @@
 
 package frc.robot.commands;
 
+import static edu.wpi.first.units.Units.Seconds;
+
 import java.util.concurrent.TimeUnit;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Robot;
+import frc.robot.Constants.GripperConstants;
 import frc.robot.Constants.ArmConstants.ArmPoses;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Gripper;
@@ -50,6 +53,6 @@ public class ScoreCommand extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return m_arm.atTarget() && !m_gripper.hasCoral() && Timer.getFPGATimestamp() - m_startTime > 2;
+    return m_arm.atTarget() && !m_gripper.hasCoral() && Timer.getFPGATimestamp() - m_startTime > GripperConstants.AutoOuttakeTime.get().in(Seconds);
   }
 }

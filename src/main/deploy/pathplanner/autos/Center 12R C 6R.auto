@@ -1,0 +1,43 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Center 12R"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Score"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "12R RHPC"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "HPIntake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "RHPC 6R"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "Center",
+  "choreoAuto": false
+}
