@@ -8,6 +8,8 @@ import static edu.wpi.first.units.Units.Degrees;
 
 import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
 
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.Angle;

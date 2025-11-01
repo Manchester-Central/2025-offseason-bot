@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 0.743237704918033,
-        "y": 4.222797131147541
+        "x": 2.0669999999999993,
+        "y": 3.5959999999999996
       },
       "isLocked": false,
       "linkedName": "RHPC"
@@ -20,8 +20,8 @@
         "y": 3.8032274590163935
       },
       "prevControl": {
-        "x": 1.33063524590164,
-        "y": 3.79123975409836
+        "x": 2.262,
+        "y": 3.8202499999999993
       },
       "nextControl": null,
       "isLocked": false,
@@ -48,7 +48,7 @@
   "folder": "From RHP",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -125.00000000000001
+    "rotation": 55.0
   },
   "useDefaultConstraints": true
 }

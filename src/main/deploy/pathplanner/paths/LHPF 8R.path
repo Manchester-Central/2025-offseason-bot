@@ -3,42 +3,35 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.132684426229508,
-        "y": 3.983043032786885
+        "x": 1.6769999999999998,
+        "y": 7.34975
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.884369790340048,
-        "y": 3.9540630120297315
+        "x": 1.8734656897692374,
+        "y": 7.1026353145842
       },
       "isLocked": false,
-      "linkedName": "Center"
+      "linkedName": "LHPF"
     },
     {
       "anchor": {
-        "x": 5.814036885245901,
-        "y": 3.8272028688524586
+        "x": 3.65625,
+        "y": 5.08775
       },
       "prevControl": {
-        "x": 6.2422457058122545,
-        "y": 3.8766996070449196
+        "x": 3.216758369080205,
+        "y": 5.589564742625596
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "12R"
+      "linkedName": "8R"
     }
   ],
   "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [
-    {
-      "name": "ScorePrep",
-      "waypointRelativePos": 0.2,
-      "endWaypointRelativePos": 1.0,
-      "command": null
-    }
-  ],
+  "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 3.0,
@@ -49,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": -59.99999999999999
   },
   "reversed": false,
-  "folder": "Central",
+  "folder": "From LHP",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": -55.0
   },
   "useDefaultConstraints": true
 }

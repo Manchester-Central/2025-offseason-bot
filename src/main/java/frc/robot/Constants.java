@@ -78,7 +78,7 @@ public final class Constants {
   public static class GripperConstants {
     public static final Current SupplyCurrentLimit = Amps.of(40); //TODO: double check the values soon...
     public static final Current StatorCurrentLimit = Amps.of(40); //TODO: double check the values soon...
-    public static final DashboardUnit<CurrentUnit, Current> CoralGrippedCurrentLimit = new DashboardUnit<>("Gripper/CoralGrippedCurrentLimit", Amps.of(10.0)); //TODO check this
+    public static final DashboardUnit<CurrentUnit, Current> CoralGrippedCurrentLimit = new DashboardUnit<>("Gripper/CoralGrippedCurrentLimit", Amps.of(20.0)); //TODO check this
     public static final DashboardNumber ActiveIntakeSpeed = new DashboardNumber("Gripper/ActiveIntake", -0.6, true, (x) -> {});
     public static final DashboardNumber PassiveIntakeSpeed = new DashboardNumber("Gripper/PassiveIntake", -0.4, true, (x) -> {});
     public static final DashboardNumber OuttakeSpeed = new DashboardNumber("Gripper/Outtake", 0.4, true, (x) -> {});
@@ -86,7 +86,7 @@ public final class Constants {
   }
 
   public static class SimArmConstants {
-    public static final double kP = 10.0;
+    public static final double kP = 5.0;
     public static final double kI = 0.0;
     public static final double kD = 0.0;
   }

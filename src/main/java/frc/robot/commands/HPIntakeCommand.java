@@ -32,6 +32,7 @@ public class HPIntakeCommand extends Command {
   public void execute() {
     m_arm.setTargetAngle(ArmPoses.HPIntakePose.get());
     m_gripper.setGripSpeed(GripperConstants.ActiveIntakeSpeed.get());
+    m_gripper.setCoralSim(true);
   }
 
   // Called once the command ends or is interrupted.
@@ -41,6 +42,6 @@ public class HPIntakeCommand extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return m_gripper.hasCoral();
+    return m_gripper.hasCoral() && m_arm.atTarget();
   }
 }

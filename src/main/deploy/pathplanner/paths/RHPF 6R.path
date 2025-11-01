@@ -9,10 +9,10 @@
       "prevControl": null,
       "nextControl": {
         "x": 1.546413934426229,
-        "y": 3.683350409836065
+        "y": 3.683350409836066
       },
       "isLocked": false,
-      "linkedName": "LHPF"
+      "linkedName": "RHPF"
     },
     {
       "anchor": {
@@ -20,7 +20,7 @@
         "y": 3.8032274590163935
       },
       "prevControl": {
-        "x": 1.3306352459016397,
+        "x": 1.33063524590164,
         "y": 3.79123975409836
       },
       "nextControl": null,
@@ -48,7 +48,7 @@
   "folder": "From RHP",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -125.00000000000001
+    "rotation": 55.0
   },
   "useDefaultConstraints": true
 }
