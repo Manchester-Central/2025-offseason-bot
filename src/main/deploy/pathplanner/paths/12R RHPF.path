@@ -3,42 +3,35 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.132684426229508,
-        "y": 3.983043032786885
-      },
-      "prevControl": null,
-      "nextControl": {
-        "x": 6.884369790340048,
-        "y": 3.9540630120297315
-      },
-      "isLocked": false,
-      "linkedName": "Center"
-    },
-    {
-      "anchor": {
         "x": 5.814036885245901,
         "y": 3.8272028688524586
       },
+      "prevControl": null,
+      "nextControl": {
+        "x": 6.245594262295082,
+        "y": 0.7823258196721317
+      },
+      "isLocked": false,
+      "linkedName": "12R"
+    },
+    {
+      "anchor": {
+        "x": 1.6662909836065571,
+        "y": 0.7583504098360652
+      },
       "prevControl": {
-        "x": 6.2422457058122545,
-        "y": 3.8766996070449196
+        "x": 6.437397540983606,
+        "y": 0.6864241803278684
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "12R"
+      "linkedName": "RHPF"
     }
   ],
   "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [
-    {
-      "name": "ScorePrep",
-      "waypointRelativePos": 0.2,
-      "endWaypointRelativePos": 1.0,
-      "command": null
-    }
-  ],
+  "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 3.0,
@@ -49,10 +42,10 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 55.0
   },
   "reversed": false,
-  "folder": "Center",
+  "folder": "To RHP",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 180.0
