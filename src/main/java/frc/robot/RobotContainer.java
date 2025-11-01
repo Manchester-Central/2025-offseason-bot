@@ -219,29 +219,19 @@ public class RobotContainer {
                     m_swerveDrive)
                 .ignoringDisable(true));
 
-    m_driver.leftBumper().whileTrue(new ConditionalCommand(
-      new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.HPIntakePose.get()), m_arm)
-        .alongWith(PathUtil.driveToClosestPointTeleopCommandV2(FieldPoint.getHpDrivePoses(), m_swerveDrive))
-        .alongWith(new RunCommand(() -> m_gripper.setGripSpeed(GripperConstants.ActiveIntakeSpeed.get()), m_gripper)), 
-      new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.HPIntakePose.get()), m_arm)
-        .alongWith(getDefaultSwerveCommand())
-        .alongWith(new RunCommand(() -> m_gripper.setGripSpeed(GripperConstants.ActiveIntakeSpeed.get()), m_gripper)), 
-      () -> m_isAutoAlign));
+    m_driver.leftBumper().whileTrue(new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.HPIntakePose.get()), m_arm)
+      .alongWith(new RunCommand(() -> m_gripper.setGripSpeed(GripperConstants.ActiveIntakeSpeed.get()), m_gripper)));
     m_driver.leftTrigger().whileTrue(new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.FloorIntakePose.get()), m_arm)
       .alongWith(new RunCommand(() -> m_gripper.setGripSpeed(GripperConstants.ActiveIntakeSpeed.get()), m_gripper)));
 
     // m_driver.rightBumper().whileTrue(new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.ScoreLowPose.get()), m_arm)
     // .alongWith (PathUtil.driveToClosestPointTeleopCommandV2(FieldPoint.getReefDrivePoses(), m_swerveDrive)));
 
-    m_driver.rightBumper().whileTrue(new ConditionalCommand(
-      new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.ScoreLowPose.get()), m_arm)
-        .alongWith(PathUtil.driveToClosestPointTeleopCommandV2(FieldPoint.getReefDrivePoses(), m_swerveDrive)), 
-      new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.ScoreLowPose.get()), m_arm)
-        .alongWith(getDefaultSwerveCommand()),
-      () -> m_isAutoAlign));
+    m_driver.rightBumper().whileTrue(new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.ScoreLowPose.get()), m_arm));
     m_driver.rightTrigger().whileTrue(new RunCommand(() -> m_gripper.setGripSpeed(GripperConstants.OuttakeSpeed.get()), m_gripper));
-    m_driver.b().whileTrue(new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.ScoreLowPose.get()), m_arm)
-      .alongWith(PathUtil.driveToClosestPointTeleopCommandV2(FieldPoint.getReefDrivePoses(), m_swerveDrive)));
+
+    m_driver.y().whileTrue(PathUtil.driveToClosestPointTeleopCommandV2(FieldPoint.getReefDrivePoses(), m_swerveDrive));
+    m_driver.a().whileTrue(PathUtil.driveToClosestPointTeleopCommandV2(FieldPoint.getHpDrivePoses(), m_swerveDrive));
 
     m_driver.leftStick().onTrue(new InstantCommand(() -> m_currentSpeedModifier = m_currentSpeedModifier < 1.0 ? 1.0 : GeneralConstants.SlowModeModifier));
     m_driver.rightStick().onTrue(new InstantCommand(() -> m_currentSpeedModifier = m_currentSpeedModifier < 1.0 ? 1.0 : GeneralConstants.SlowModeModifier));
