@@ -36,7 +36,12 @@
       "name": "HPIntake",
       "waypointRelativePos": 0.4,
       "endWaypointRelativePos": 1.0,
-      "command": null
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "HPIntake"
+        }
+      }
     }
   ],
   "globalConstraints": {
