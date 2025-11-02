@@ -14,8 +14,11 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorArrangementValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.CanIdentifiers;
 import frc.robot.Constants.GripperConstants;
@@ -29,7 +32,8 @@ public class Gripper extends SubsystemBase {
   private ChaosTalonFxsTuner m_gripperTuner = new ChaosTalonFxsTuner("Gripper", m_gripperMotor);
 
   private static boolean m_hasCoralGripped = false;
-
+  private static boolean m_hasCoralGrippedSim = false;
+  private Debouncer coralDebouncer = new Debouncer(0.5,DebounceType.kBoth);
   private DashboardNumber m_supplyCurrentLimit = m_gripperTuner.tunable(
       "SupplyCurrentLimit", GripperConstants.SupplyCurrentLimit.in(Amps), (config, newValue) -> config.CurrentLimits.SupplyCurrentLimit = newValue);
   private DashboardNumber m_statorCurrentLimit = m_gripperTuner.tunable(
@@ -70,7 +74,17 @@ public class Gripper extends SubsystemBase {
    * Checks if there is a coral at the sensor.
    */
   public boolean hasCoral() {
+    // if (Robot.isSimulation()) {
+    //   return m_hasCoralGrippedSim; 
+    // }
     return m_hasCoralGripped; 
+  }
+
+  /**
+   * Sets the state of coral in sim
+   */
+  public void setCoralSim(boolean hasCoral) {
+    m_hasCoralGrippedSim = hasCoral;
   }
 
   /**                                                    //TODO: Add function and stuff...
@@ -83,8 +97,8 @@ public class Gripper extends SubsystemBase {
   @Override
   public void periodic() {
     boolean currentLimitReached = m_gripperMotor.getStatorCurrent().getValue().gt(GripperConstants.CoralGrippedCurrentLimit.get());
-    m_hasCoralGripped = currentLimitReached;
-    //TODO: 
+    m_hasCoralGripped = coralDebouncer.calculate(currentLimitReached);
+    //TODO: ???
 
     Logger.recordOutput("Gripper/HasCoral", hasCoral());
     // This method will be called once per scheduler run

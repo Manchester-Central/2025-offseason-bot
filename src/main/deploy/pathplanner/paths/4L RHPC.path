@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.7608800067510832,
-        "y": 2.94371834568701
+        "x": 2.301,
+        "y": 1.87025
       },
       "isLocked": false,
       "linkedName": "4L"
@@ -20,8 +20,8 @@
         "y": 1.3936987704918034
       },
       "prevControl": {
-        "x": 2.1052502917977263,
-        "y": 2.4314849456382
+        "x": 2.4960000000000004,
+        "y": 1.2559999999999991
       },
       "nextControl": null,
       "isLocked": false,
@@ -42,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -125.00000000000001
+    "rotation": 55.0
   },
   "reversed": false,
   "folder": "To RHP",

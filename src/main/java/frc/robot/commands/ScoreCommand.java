@@ -44,6 +44,9 @@ public class ScoreCommand extends Command {
     if (m_arm.atTarget()) {
       m_gripper.setGripSpeed(0.6);
     }
+    if (Timer.getFPGATimestamp() - m_startTime > GripperConstants.AutoOuttakeTime.get().in(Seconds) && Robot.isSimulation()) {
+      m_gripper.setCoralSim(false);
+    }
   }
 
   // Called once the command ends or is interrupted.

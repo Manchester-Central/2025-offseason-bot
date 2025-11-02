@@ -4,10 +4,12 @@
   "holonomicMode": true,
   "pathFolders": [
     "To RHP",
+    "To LHP",
     "Right",
+    "From LHP",
     "Left",
     "From RHP",
-    "Center"
+    "Central"
   ],
   "autoFolders": [
     "Center",
