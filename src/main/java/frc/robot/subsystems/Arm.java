@@ -34,10 +34,8 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.sim.ChassisReference;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Robot;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.CanIdentifiers;
-import frc.robot.Constants.SimArmConstants;
 import frc.robot.Constants.ArmConstants.ArmPoses;
 import frc.robot.util.ChaosCanCoder;
 import frc.robot.util.ChaosCanCoderTuner;
@@ -133,12 +131,6 @@ public class Arm extends SubsystemBase {
 
     var slot1 = new Slot1Configs();
     slot1.kG = m_kg2.get();
-
-    if (Robot.isSimulation()) {
-      slot0.kG = 0;
-      slot0.kS = 0;
-      slot1.kG = 0;
-    }
 
     m_motor.applyConfig();
 
