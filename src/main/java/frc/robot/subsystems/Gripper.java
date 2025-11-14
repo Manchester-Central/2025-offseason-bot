@@ -101,6 +101,7 @@ public class Gripper extends SubsystemBase {
     //TODO: ???
 
     Logger.recordOutput("Gripper/HasCoral", hasCoral());
+    Logger.recordOutput("Gripper/GripSpeed", getGripSpeed());
     // This method will be called once per scheduler run
 
     if (hasCoral()) {

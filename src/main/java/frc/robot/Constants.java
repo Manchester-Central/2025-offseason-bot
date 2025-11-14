@@ -16,6 +16,7 @@ package frc.robot;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Kilograms;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Seconds;
@@ -29,6 +30,7 @@ import edu.wpi.first.units.TimeUnit;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -82,7 +84,7 @@ public final class Constants {
     public static final DashboardNumber ActiveIntakeSpeed = new DashboardNumber("Gripper/ActiveIntake", -0.6, true, (x) -> {});
     public static final DashboardNumber PassiveIntakeSpeed = new DashboardNumber("Gripper/PassiveIntake", -0.4, true, (x) -> {});
     public static final DashboardNumber OuttakeSpeed = new DashboardNumber("Gripper/Outtake", 0.4, true, (x) -> {});
-    public static final DashboardUnit<TimeUnit, Time> AutoOuttakeTime = new DashboardUnit<TimeUnit,Time>("Gripper/AutoOuttakeTime", Seconds.of(0.4));
+    public static final DashboardUnit<TimeUnit, Time> AutoOuttakeTime = new DashboardUnit<TimeUnit,Time>("Gripper/AutoOuttakeTime", Seconds.of(0.3));
   }
 
   public static class SimArmConstants {
@@ -118,6 +120,10 @@ public final class Constants {
 
     public static final Angle MinAngle = Degrees.of(10);
     public static final Angle MaxAngle = Degrees.of(215); // TODO: Actual: 216
+
+    public static final Mass ArmMassKg = Kilograms.of(3);
+
+    public static final Distance ArmLengthMeters = Meters.of(0.6);
 
     public static class ArmPoses {
       public static final DashboardUnit<AngleUnit, Angle> StowPose = new DashboardUnit<>("Poses/Stow", Degrees.of(90)); //TODO Tune all of these

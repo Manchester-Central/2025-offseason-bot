@@ -42,7 +42,7 @@ public class ScoreCommand extends Command {
   public void execute() {
     m_arm.setTargetAngle(ArmPoses.ScoreLowPose.get());
     if (m_arm.atTarget()) {
-      m_gripper.setGripSpeed(0.6);
+      m_gripper.setGripSpeed(0.3);
     }
     if (Timer.getFPGATimestamp() - m_startTime > GripperConstants.AutoOuttakeTime.get().in(Seconds) && Robot.isSimulation()) {
       m_gripper.setCoralSim(false);
