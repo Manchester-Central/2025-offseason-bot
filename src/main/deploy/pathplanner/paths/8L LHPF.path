@@ -3,35 +3,47 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.5104508196721311,
-        "y": 0.746362704918032
+        "x": 3.943954918032787,
+        "y": 5.25373975409836
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.1183089162317046,
-        "y": 1.387872056938214
+        "x": 3.415762537224652,
+        "y": 5.693247441363619
       },
       "isLocked": false,
-      "linkedName": "RHPF"
+      "linkedName": "8L"
     },
     {
       "anchor": {
-        "x": 3.692213114754098,
-        "y": 2.916137295081967
+        "x": 1.5104508196721311,
+        "y": 7.303637295081967
       },
       "prevControl": {
-        "x": 3.3399888825092177,
-        "y": 2.539521793439079
+        "x": 2.5604178103249886,
+        "y": 6.402482258259455
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "4L"
+      "linkedName": "LHPF"
     }
   ],
   "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "HPIntake",
+      "waypointRelativePos": 0.4,
+      "endWaypointRelativePos": 1.0,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "HPIntake"
+        }
+      }
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 3.0,
@@ -41,14 +53,14 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0,
-    "rotation": 59.99999999999999
+    "velocity": 0.8,
+    "rotation": -55.0
   },
   "reversed": false,
-  "folder": "From RHP",
+  "folder": "To LHP",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 55.0
+    "rotation": -59.99999999999999
   },
   "useDefaultConstraints": true
 }

@@ -31,7 +31,6 @@ public class ScorePrepCommand extends Command {
   @Override
   public void execute() {
     m_arm.setTargetAngle(ArmPoses.ScoreLowPose.get());
-    m_gripper.setGripSpeed(GripperConstants.ActiveIntakeSpeed.get());
   }
 
   // Called once the command ends or is interrupted.

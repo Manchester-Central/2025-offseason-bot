@@ -8,6 +8,8 @@ import static edu.wpi.first.units.Units.Degrees;
 
 import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
 
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.Angle;
@@ -175,7 +177,7 @@ public class Arm extends SubsystemBase {
    * Checks if the current angle is at the goal angle.
    */
   public boolean atTarget() {
-    return Math.abs(getCurrentAngle().minus(m_targetAngle).in(Degrees)) < 0.5;
+    return Math.abs(getCurrentAngle().minus(m_targetAngle).in(Degrees)) < 0.8;
   }
 
   @Override
@@ -205,7 +207,7 @@ public class Arm extends SubsystemBase {
     m_ligament.setAngle(getCurrentAngle().in(Degrees) - 90);
 
     super.periodic();
-    Logger.recordOutput("Arm/Setpoint", m_targetAngle);
+    Logger.recordOutput("Arm/Setpoint", m_targetAngle.in(Degrees));
     Logger.recordOutput("Arm/CurrentAngle", getCurrentAngle().in(Degrees));
     Logger.recordOutput("Arm/AtTarget", atTarget());
     Logger.recordOutput("Arm/AngleError", getCurrentAngle().minus(m_targetAngle));
