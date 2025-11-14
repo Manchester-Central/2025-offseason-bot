@@ -84,7 +84,7 @@ public final class Constants {
     public static final DashboardNumber ActiveIntakeSpeed = new DashboardNumber("Gripper/ActiveIntake", -0.6, true, (x) -> {});
     public static final DashboardNumber PassiveIntakeSpeed = new DashboardNumber("Gripper/PassiveIntake", -0.4, true, (x) -> {});
     public static final DashboardNumber OuttakeSpeed = new DashboardNumber("Gripper/Outtake", 0.4, true, (x) -> {});
-    public static final DashboardUnit<TimeUnit, Time> AutoOuttakeTime = new DashboardUnit<TimeUnit,Time>("Gripper/AutoOuttakeTime", Seconds.of(0.4));
+    public static final DashboardUnit<TimeUnit, Time> AutoOuttakeTime = new DashboardUnit<TimeUnit,Time>("Gripper/AutoOuttakeTime", Seconds.of(0.3));
   }
 
   public static class SimArmConstants {

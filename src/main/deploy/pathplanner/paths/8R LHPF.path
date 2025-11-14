@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.65625,
-        "y": 5.08775
+        "x": 3.7042008196721308,
+        "y": 5.121875
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.037888230515679,
-        "y": 5.7609204433154035
+        "x": 3.08583905018781,
+        "y": 5.795045443315404
       },
       "isLocked": false,
       "linkedName": "8R"
     },
     {
       "anchor": {
-        "x": 1.6769999999999998,
-        "y": 7.34975
+        "x": 1.5104508196721311,
+        "y": 7.303637295081967
       },
       "prevControl": {
-        "x": 2.3516724178359296,
-        "y": 6.6063317582269985
+        "x": 2.185123237508061,
+        "y": 6.560219053308965
       },
       "nextControl": null,
       "isLocked": false,
@@ -31,7 +31,19 @@
   "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "HPIntake",
+      "waypointRelativePos": 0.4,
+      "endWaypointRelativePos": 1.0,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "HPIntake"
+        }
+      }
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 3.0,
@@ -41,7 +53,7 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0,
+    "velocity": 0.8,
     "rotation": -55.0
   },
   "reversed": false,
