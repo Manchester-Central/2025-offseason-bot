@@ -5,15 +5,19 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Kilograms;
+import static edu.wpi.first.units.Units.Meters;
 
 import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
 
-import edu.wpi.first.math.filter.Debouncer;
-import edu.wpi.first.math.filter.Debouncer.DebounceType;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N2;
+import edu.wpi.first.math.system.LinearSystem;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import static edu.wpi.first.units.Units.Rotations;
 
@@ -30,10 +34,8 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.sim.ChassisReference;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Robot;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.CanIdentifiers;
-import frc.robot.Constants.SimArmConstants;
 import frc.robot.Constants.ArmConstants.ArmPoses;
 import frc.robot.util.ChaosCanCoder;
 import frc.robot.util.ChaosCanCoderTuner;
@@ -43,35 +45,36 @@ import frc.robot.util.ChaosTalonFxTuner;
 public class Arm extends SubsystemBase {
 
   private LoggedMechanismLigament2d m_ligament;
-  
+
   private DCMotor m_DCMotor = DCMotor.getKrakenX60(1);
-  private DCMotorSim m_motorSim = new DCMotorSim(
-    LinearSystemId.createDCMotorSystem(m_DCMotor, 0.01, ArmConstants.RotorToSensorRatio),
-    m_DCMotor,
-    0.001,
-    0.001);
+  private double m_moi = SingleJointedArmSim.estimateMOI(ArmConstants.ArmLengthMeters.in(Meters),
+                                                         ArmConstants.ArmMassKg.in(Kilograms));
+  private LinearSystem<N2, N1, N2> m_armSim =
+      LinearSystemId.createSingleJointedArmSystem(m_DCMotor,
+                                                  m_moi,
+                                                  ArmConstants.RotorToSensorRatio);
+  private DCMotorSim m_motorSim = new DCMotorSim(m_armSim, m_DCMotor, 0.001, 0.001);
 
   private Angle m_targetAngle = Degrees.of(120);
-   private ChaosTalonFx m_motor = new ChaosTalonFx(CanIdentifiers.ArmMotorCANID);
-   private ChaosCanCoder m_canCoder =
-      new ChaosCanCoder(CanIdentifiers.ArmCANcoderCANID);
-      private ChaosTalonFxTuner m_talonTuner = new ChaosTalonFxTuner("Arm", m_motor);
-      private ChaosCanCoderTuner m_canCoderTuner = new ChaosCanCoderTuner("Arm", m_canCoder);
+  private ChaosTalonFx m_motor = new ChaosTalonFx(CanIdentifiers.ArmMotorCANID);
+  private ChaosCanCoder m_canCoder = new ChaosCanCoder(CanIdentifiers.ArmCANcoderCANID);
+  private ChaosTalonFxTuner m_talonTuner = new ChaosTalonFxTuner("Arm", m_motor);
+  private ChaosCanCoderTuner m_canCoderTuner = new ChaosCanCoderTuner("Arm", m_canCoder);
 
-       private DashboardNumber m_canCoderOffsetDegrees = m_canCoderTuner.tunable("Offset_Degrees",
+  private DashboardNumber m_canCoderOffsetDegrees = m_canCoderTuner.tunable("Offset_Degrees",
       //Robot.isReal() ? ArmConstants.canCoderOffsetDegrees : SimArmConstants.canCoderOffsetDegrees, (config, newValue) -> 
       ArmConstants.canCoderOffsetAngle.in(Degrees), (config, newValue) ->
       config.MagnetSensor.MagnetOffset = Degrees.of(newValue).in(Rotations));
 
-      private DashboardNumber m_kp = m_talonTuner.tunable("kP", Robot.isSimulation() ? SimArmConstants.kP : ArmConstants.kP, (config, newValue) -> config.Slot0.kP = newValue);
-      private DashboardNumber m_ki = m_talonTuner.tunable("kI", Robot.isSimulation() ? SimArmConstants.kI : ArmConstants.kI, (config, newValue) -> config.Slot0.kI = newValue);
-      private DashboardNumber m_kd = m_talonTuner.tunable("kD", Robot.isSimulation() ? SimArmConstants.kD : ArmConstants.kD, (config, newValue) -> config.Slot0.kD = newValue);
-      private DashboardNumber m_kg = m_talonTuner.tunable("kG", ArmConstants.kG, (config, newValue) -> config.Slot0.kG = newValue);
-      private DashboardNumber m_kg2 = m_talonTuner.tunable("kG2", ArmConstants.kG, (config, newValue) -> config.Slot1.kG = newValue);
-      private DashboardNumber m_ks = m_talonTuner.tunable("kS", ArmConstants.kS, (config, newValue) -> config.Slot0.kS = newValue);
-      private DashboardNumber m_kv = m_talonTuner.tunable("kV", ArmConstants.kV, (config, newValue) -> config.Slot0.kV = newValue);
-      private DashboardNumber m_ka = m_talonTuner.tunable("kA", ArmConstants.kA, (config, newValue) -> config.Slot0.kA = newValue);
-      private DashboardNumber m_mmCruiseVelocity = m_talonTuner.tunable(
+  private DashboardNumber m_kp = m_talonTuner.tunable("kP", ArmConstants.kP, (config, newValue) -> config.Slot0.kP = newValue);
+  private DashboardNumber m_ki = m_talonTuner.tunable("kI", ArmConstants.kI, (config, newValue) -> config.Slot0.kI = newValue);
+  private DashboardNumber m_kd = m_talonTuner.tunable("kD", ArmConstants.kD, (config, newValue) -> config.Slot0.kD = newValue);
+  private DashboardNumber m_kg = m_talonTuner.tunable("kG", ArmConstants.kG, (config, newValue) -> config.Slot0.kG = newValue);
+  private DashboardNumber m_kg2 = m_talonTuner.tunable("kG2", ArmConstants.kG, (config, newValue) -> config.Slot1.kG = newValue);
+  private DashboardNumber m_ks = m_talonTuner.tunable("kS", ArmConstants.kS, (config, newValue) -> config.Slot0.kS = newValue);
+  private DashboardNumber m_kv = m_talonTuner.tunable("kV", ArmConstants.kV, (config, newValue) -> config.Slot0.kV = newValue);
+  private DashboardNumber m_ka = m_talonTuner.tunable("kA", ArmConstants.kA, (config, newValue) -> config.Slot0.kA = newValue);
+  private DashboardNumber m_mmCruiseVelocity = m_talonTuner.tunable(
       "MM_CruiseVelocity", ArmConstants.MMCruiseVelocity, (config, newValue) -> config.MotionMagic.MotionMagicCruiseVelocity = newValue);
   private DashboardNumber m_mmAcceleration = m_talonTuner.tunable("MM_Acceleration", ArmConstants.MMAcceleration, (config, newValue) -> config.MotionMagic.MotionMagicAcceleration = newValue);
   private DashboardNumber m_mmJerk = m_talonTuner.tunable("MM_Jerk", ArmConstants.MMJerk, (config, newValue) -> config.MotionMagic.MotionMagicJerk = newValue);
@@ -127,7 +130,7 @@ public class Arm extends SubsystemBase {
     m_motor.Configuration.Slot0 = slot0;
 
     var slot1 = new Slot1Configs();
-    slot1.kG = m_kg2.get(); 
+    slot1.kG = m_kg2.get();
 
     m_motor.applyConfig();
 
@@ -152,32 +155,32 @@ public class Arm extends SubsystemBase {
    * Sets the target angle and tries to drive there.
    */
   public void setTargetAngle(Angle newAngle) {
-    if (newAngle.in(Degrees) > ArmConstants.MaxAngle.in(Degrees)) {
+    if (newAngle.gt(ArmConstants.MaxAngle)) {
       newAngle = ArmConstants.MaxAngle;
-    } else if (newAngle.in(Degrees) < ArmConstants.MinAngle.in(Degrees)) {
+    } else if (newAngle.lt(ArmConstants.MinAngle)) {
       newAngle = ArmConstants.MinAngle;
     }
 
     m_targetAngle = newAngle;
 
+    // Units still doesn't have an abs() function so this is what you get
     if (Math.abs(getCurrentAngle().minus(newAngle).in(Degrees)) < ArmConstants.AngleTolerance.get().in(Degrees)) {
-      m_motor.moveToPosition(newAngle.in(Rotations), 1);
+      m_motor.moveToPosition(newAngle, 1);
     } else {
-      m_motor.moveToPosition(newAngle.in(Rotations));
-      // m_motor.moveToPositionMotionMagic(newAngle.in(Rotations)); // Rotation to match the cancoder units
+      m_motor.moveToPosition(newAngle);
+      // m_motor.moveToPositionMotionMagic(newAngle); // Rotation to match the cancoder units
     }
   }
 
   public Angle getCurrentAngle() {
-    return Rotations.of(
-        m_canCoder.getAbsolutePosition().getValueAsDouble());
+    return m_canCoder.getPosition().getValue();
   }
 
   /**
    * Checks if the current angle is at the goal angle.
    */
   public boolean atTarget() {
-    return Math.abs(getCurrentAngle().minus(m_targetAngle).in(Degrees)) < 0.8;
+    return Math.abs(getCurrentAngle().minus(m_targetAngle).in(Degrees)) < ArmConstants.AngleTolerance.get().in(Degrees);
   }
 
   @Override
@@ -204,10 +207,10 @@ public class Arm extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    m_ligament.setAngle(getCurrentAngle().in(Degrees) - 90);
+    m_ligament.setAngle(getCurrentAngle().in(Degrees) - 90); // subtract 90 because the previous ligament sticks straight up
 
     super.periodic();
-    Logger.recordOutput("Arm/Setpoint", m_targetAngle.in(Degrees));
+    Logger.recordOutput("Arm/SetpointDegrees", m_targetAngle.in(Degrees));
     Logger.recordOutput("Arm/CurrentAngle", getCurrentAngle().in(Degrees));
     Logger.recordOutput("Arm/AtTarget", atTarget());
     Logger.recordOutput("Arm/AngleError", getCurrentAngle().minus(m_targetAngle));
