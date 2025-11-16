@@ -17,11 +17,19 @@ import com.chaos131.util.DashboardNumber;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement;
+import com.pathplanner.lib.pathfinding.Pathfinding;
+import com.pathplanner.lib.util.PathPlannerLogging;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.multisim.AdditionalSimRobot;
+import frc.robot.util.LocalADStarAK;
 
+import org.ironmaple.simulation.SimulatedArena;
+import org.ironmaple.simulation.seasonspecific.reefscape2025.Arena2025Reefscape;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -83,6 +91,18 @@ public class Robot extends LoggedRobot {
     // Start AdvantageKit logger
     Logger.start();
 
+    // Supplemental Logging
+    Pathfinding.setPathfinder(new LocalADStarAK());
+    PathPlannerLogging.setLogActivePathCallback(
+        (activePath) -> {
+          Logger.recordOutput(
+              "Odometry/Trajectory", activePath.toArray(new Pose2d[activePath.size()]));
+        });
+    PathPlannerLogging.setLogTargetPoseCallback(
+        (targetPose) -> {
+          Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose);
+        });
+
     // Check for valid swerve config
     var modules =
         new SwerveModuleConstants[] {
@@ -99,9 +119,9 @@ public class Robot extends LoggedRobot {
       }
     }
 
-    // Instantiate our RobotContainer. This will perform all our button bindings,
+    // Instantiate our primary RobotContainer. This will perform all our button bindings,
     // and put our autonomous chooser on the dashboard.
-    robotContainer = new RobotContainer();
+    robotContainer = new RobotContainer(0);
   }
 
   /** This function is called periodically during all modes. */
@@ -125,13 +145,23 @@ public class Robot extends LoggedRobot {
     // Threads.setCurrentThreadPriority(false, 10);
 
     // Logs the mech2d but in a way that AdvScope can use the 3d parts
-    robotContainer.logMech3d();
+    // robotContainer.logMech3d();
+    robotContainer.periodic();
   }
 
   /** This function is called once when the robot is disabled. */
   @Override
   public void disabledInit() {
-    //robotContainer.resetSimulationField();
+    // Remove all game pieces from the arena to clear space for the robots
+    SimulatedArena.getInstance().clearGamePieces();
+    // Reset the primary driver
+    robotContainer.resetRobotPose();
+    // Reset the additional simulated robots
+    for (AdditionalSimRobot simRobot : AdditionalSimRobot.instances) {
+      simRobot.resetRobotPose();
+    }
+    // Reset game pieces last, in case they collide with a robot still at the spawn points
+    SimulatedArena.getInstance().resetFieldForAuto();
   }
 
   /** This function is called periodically when disabled. */
@@ -183,12 +213,31 @@ public class Robot extends LoggedRobot {
   /** This function is called once when the robot is first started up. */
   @Override
   public void simulationInit() {
-    AdditionalSimRobot.startOpponentRobotSimulations();
+    AdditionalSimRobot.setupAdditionalRobotSims();
+    for (AdditionalSimRobot simRobot : AdditionalSimRobot.instances) {
+      simRobot.resetRobotPose();
+    }
   }
 
   /** This function is called periodically whilst in simulation. */
   @Override
   public void simulationPeriodic() {
-    robotContainer.updateSimulation();
+    SimulatedArena.getInstance().simulationPeriodic();
+    // Updates the primary robot, AdditionalSimRobots will update themselves
+    robotContainer.periodic();
+
+    for (AdditionalSimRobot simRobot : AdditionalSimRobot.instances) {
+      simRobot.periodic();
+    }
+    // Game Pieces on the ground
+    Logger.recordOutput("FieldSimulation/Coral", SimulatedArena.getInstance().getGamePiecesArrayByType("Coral"));
+    Logger.recordOutput("FieldSimulation/Algae", SimulatedArena.getInstance().getGamePiecesArrayByType("Algae"));
+    // MapleSim hasn't figured out how to handle this correctly.
+    // It should really be a ReefscapeArena that extends the SimulatedArena.
+    // We would decide on the map at the Robot main/init level... but whatever, ya know?
+    Logger.recordOutput("FieldSimulation/ScoredBlue", ((Arena2025Reefscape)SimulatedArena.getInstance()).getBranches(Alliance.Blue));
+    Logger.recordOutput("FieldSimulation/ScoredRed", ((Arena2025Reefscape)SimulatedArena.getInstance()).getBranches(Alliance.Red));
+    Logger.recordOutput("FieldSimulation/BluePoints", ((Arena2025Reefscape)SimulatedArena.getInstance()).getScore(Alliance.Blue));
+    Logger.recordOutput("FieldSimulation/RedPoints", ((Arena2025Reefscape)SimulatedArena.getInstance()).getScore(Alliance.Red));
   }
 }

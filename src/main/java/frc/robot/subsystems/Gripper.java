@@ -18,12 +18,8 @@ import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Robot;
-import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.CanIdentifiers;
 import frc.robot.Constants.GripperConstants;
-import frc.robot.util.ChaosTalonFx;
-import frc.robot.util.ChaosTalonFxTuner;
 import frc.robot.util.ChaosTalonFxs;
 import frc.robot.util.ChaosTalonFxsTuner;
 
@@ -104,10 +100,10 @@ public class Gripper extends SubsystemBase {
     Logger.recordOutput("Gripper/GripSpeed", getGripSpeed());
     // This method will be called once per scheduler run
 
-    if (hasCoral()) {
+    if (hasCoral() && m_ligament != null) {
       m_ligament.setColor(new Color8Bit(255, 255, 255));
       m_ligament.setLineWeight(8);
-    } else {
+    } else if(m_ligament != null) {
       m_ligament.setColor(new Color8Bit(50, 50, 255));
       m_ligament.setLineWeight(3);
     }

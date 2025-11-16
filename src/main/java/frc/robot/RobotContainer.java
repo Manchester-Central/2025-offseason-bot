@@ -26,10 +26,8 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.GeneralConstants;
 import frc.robot.Constants.GripperConstants;
 import frc.robot.Constants.ArmConstants.ArmPoses;
@@ -42,16 +40,14 @@ import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Gripper;
 import frc.robot.subsystems.Quest;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.DriveIO;
+import frc.robot.subsystems.drive.DriveSim;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
-import frc.robot.subsystems.drive.GyroIOSim;
 import frc.robot.subsystems.drive.ModuleIO;
-import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
-import frc.robot.subsystems.drive.ModuleIOTalonFXSim;
+import frc.robot.subsystems.multisim.AdditionalSimRobot;
 
-import org.ironmaple.simulation.SimulatedArena;
-import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.littletonrobotics.junction.Logger;
 import frc.robot.util.FieldPoint;
 import frc.robot.util.PathUtil;
@@ -59,8 +55,6 @@ import frc.robot.util.DriveDirection;
 
 import static edu.wpi.first.units.Units.Degrees;
 
-import org.littletonrobotics.junction.AutoLogOutput;
-import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
@@ -73,23 +67,21 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-  private boolean m_scoringHigh = false;
-  private boolean m_isAutoAlign = true;
+  private int m_id;
+  // private boolean m_isAutoAlign = true;
   private double m_currentSpeedModifier = 1.0;
 
   // Subsystems
-  private final Quest m_quest;
+  private Quest m_quest;
   // private final Vision m_vision; // If we do use a limelight
-  private final Drive m_swerveDrive;
+  private final DriveIO m_swerveDrive;
   private final Gripper m_gripper;
   private final Arm m_arm;
 
   // Controller
-  private final Gamepad m_driver = new Gamepad(0);
-  private final Gamepad m_operator = new Gamepad(1);
+  private final Gamepad m_driver;
 
   // Mechanism2d Simulation Support
-  @AutoLogOutput(key = "Mech2d")
   private final LoggedMechanism2d m_mechanism2d = new LoggedMechanism2d(0, 0);
   private final LoggedMechanismRoot2d m_mechanismRoot2d = m_mechanism2d.getRoot("ArmRoot", 0, 0);
   private final LoggedMechanismLigament2d m_originToPivot =
@@ -101,13 +93,12 @@ public class RobotContainer {
       m_armLigament.append(new LoggedMechanismLigament2d("Gripper", 0.2, 0));
 
   // Dashboard inputs
-  private final LoggedDashboardChooser<Command> m_autoChooser;
-
-  // Simulation resources
-  private SwerveDriveSimulation driveSimulation = null;
+  private LoggedDashboardChooser<Command> m_autoChooser;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
-  public RobotContainer() {
+  public RobotContainer(int controllerId) {
+    m_id = controllerId;
+    m_driver = new Gamepad(controllerId);
     m_arm = new Arm(m_armLigament);
     m_gripper = new Gripper(m_gripperLigament);
 
@@ -116,28 +107,25 @@ public class RobotContainer {
     switch (Constants.currentMode) {
       case REAL:
         // Real robot, instantiate hardware IO implementations
-        m_swerveDrive =
+        var drive_obj = 
             new Drive(
                 new GyroIOPigeon2(),
                 new ModuleIOTalonFX(TunerConstants.FrontLeft),
                 new ModuleIOTalonFX(TunerConstants.FrontRight),
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                 new ModuleIOTalonFX(TunerConstants.BackRight),
-                (pose) -> {});
+              () -> GeneralConstants.DefaultStartingPose);
+        m_quest = new Quest(drive_obj);
+        drive_obj.setQuest(m_quest);
+        m_swerveDrive = drive_obj;
+        m_autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+
         break;
 
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
-        driveSimulation = new SwerveDriveSimulation(Drive.mapleSimConfig, new Pose2d(3, 3, new Rotation2d()));
         m_swerveDrive =
-            new Drive(
-                new GyroIOSim(driveSimulation.getGyroSimulation()),
-                new ModuleIOTalonFXSim(TunerConstants.FrontLeft, driveSimulation.getModules()[0]),
-                new ModuleIOTalonFXSim(TunerConstants.FrontRight, driveSimulation.getModules()[1]),
-                new ModuleIOTalonFXSim(TunerConstants.BackLeft, driveSimulation.getModules()[2]),
-                new ModuleIOTalonFXSim(TunerConstants.BackRight, driveSimulation.getModules()[3]),
-                driveSimulation::setSimulationWorldPose);
-        SimulatedArena.getInstance().addDriveTrainSimulation(driveSimulation);
+            new DriveSim(() -> AdditionalSimRobot.ROBOTS_STARTING_POSITIONS[m_id]);
         break;
 
       default:
@@ -149,11 +137,9 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {},
-                (pose) -> {});
+              () -> GeneralConstants.DefaultStartingPose);
         break;
     }
-    m_quest = new Quest(m_swerveDrive);
-    m_swerveDrive.setQuest(m_quest);
 
     // Set up auto routines
     NamedCommands.registerCommand("HPIntake", new HPIntakeCommand(m_arm, m_gripper));
@@ -161,33 +147,35 @@ public class RobotContainer {
     NamedCommands.registerCommand("Score", new ScoreCommand(m_arm, m_gripper));
     NamedCommands.registerCommand("ReefAutoAlign", PathUtil.driveToClosestPointTeleopCommandV2(FieldPoint.getReefDrivePoses(), m_swerveDrive));
 
-    m_autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
-
     // Set up SysId routines
-    m_autoChooser.addOption(
-        "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(m_swerveDrive));
-    m_autoChooser.addOption(
-        "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(m_swerveDrive));
-    m_autoChooser.addOption(
-        "Drive SysId (Quasistatic Forward)",
-        m_swerveDrive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    m_autoChooser.addOption(
-        "Drive SysId (Quasistatic Reverse)",
-        m_swerveDrive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    m_autoChooser.addOption(
-        "Drive SysId (Dynamic Forward)", m_swerveDrive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    m_autoChooser.addOption(
-        "Drive SysId (Dynamic Reverse)", m_swerveDrive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    // m_autoChooser.addOption(
+    //     "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(m_swerveDrive));
+    // m_autoChooser.addOption(
+    //     "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(m_swerveDrive));
+    // m_autoChooser.addOption(
+    //     "Drive SysId (Quasistatic Forward)",
+    //     m_swerveDrive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    // m_autoChooser.addOption(
+    //     "Drive SysId (Quasistatic Reverse)",
+    //     m_swerveDrive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    // m_autoChooser.addOption(
+    //     "Drive SysId (Dynamic Forward)", m_swerveDrive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    // m_autoChooser.addOption(
+    //     "Drive SysId (Dynamic Reverse)", m_swerveDrive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
     // Configure the button bindings
     configureButtonBindings();
   }
 
+  public Gamepad getDriverGamepad() {
+    return this.m_driver;
+  }
+
   private Command getDefaultSwerveCommand() {
     return DriveCommands.joystickDrive(
       m_swerveDrive,
-      () -> m_driver.getLeftY(),
-      () -> -m_driver.getLeftX(),
+      () -> this.m_id < 3 ?  m_driver.getLeftY() : -m_driver.getLeftY(), // Multisim fix
+      () -> this.m_id < 3 ? -m_driver.getLeftX() :  m_driver.getLeftX(),
       () -> -m_driver.getRightX(),
       () -> m_currentSpeedModifier);
   }
@@ -230,7 +218,7 @@ public class RobotContainer {
             Commands.runOnce(
                     () ->
                         m_swerveDrive.setPose(
-                            new Pose2d(m_swerveDrive.getPose().getTranslation(), new Rotation2d())),
+                            new Pose2d(getRobotPose().getTranslation(), new Rotation2d())),
                     m_swerveDrive)
                 .ignoringDisable(true));
 
@@ -250,22 +238,6 @@ public class RobotContainer {
 
     m_driver.leftStick().onTrue(new InstantCommand(() -> m_currentSpeedModifier = m_currentSpeedModifier < 1.0 ? 1.0 : GeneralConstants.SlowModeModifier));
     m_driver.rightStick().onTrue(new InstantCommand(() -> m_currentSpeedModifier = m_currentSpeedModifier < 1.0 ? 1.0 : GeneralConstants.SlowModeModifier));
-
-    m_driver.back().whileTrue(DriveCommands.feedforwardCharacterization(m_swerveDrive));
-    m_driver.start().whileTrue(DriveCommands.wheelRadiusCharacterization(m_swerveDrive));
-
-    // Operator Controls
-    m_operator.leftBumper().whileTrue(new RunCommand(() -> m_gripper.setGripSpeed(GripperConstants.ActiveIntakeSpeed.get()), m_gripper));
-
-    m_operator.y().whileTrue(new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.DeAlgaePose.get()), m_arm)
-      .alongWith(new RunCommand(() -> m_gripper.setGripSpeed(GripperConstants.OuttakeSpeed.get()), m_gripper))); // Add gripper control
-    m_operator.a().whileTrue(new InstantCommand(() -> {
-      m_isAutoAlign = !m_isAutoAlign;
-      Logger.recordOutput("IsAutoAlign", m_isAutoAlign);
-    }));
-
-    m_operator.povUp().onTrue(new InstantCommand(() -> m_scoringHigh = true));
-    m_operator.povDown().onTrue(new InstantCommand(() -> m_scoringHigh = false));
   }
 
   /**
@@ -277,28 +249,32 @@ public class RobotContainer {
     return m_autoChooser.get();
   }
 
-  public void resetSimulationField() {
-    if (Constants.currentMode != Constants.Mode.SIM) return;
-
-    driveSimulation.setSimulationWorldPose(new Pose2d(3, 3, new Rotation2d()));
-    SimulatedArena.getInstance().resetFieldForAuto();
+  // Returns a very mutable reference to a very sensitive subsystem.
+  public DriveIO getDriveSystem() {
+    return m_swerveDrive;
   }
 
-  public void updateSimulation() {
-    if (Constants.currentMode != Constants.Mode.SIM) return;
+  public Pose2d getRobotPose() {
+    return m_swerveDrive.getPose();
+  }
 
-    SimulatedArena.getInstance().simulationPeriodic();
-    Logger.recordOutput("FieldSimulation/RobotPosition", driveSimulation.getSimulatedDriveTrainPose());
-    Logger.recordOutput(
-            "FieldSimulation/Coral", SimulatedArena.getInstance().getGamePiecesArrayByType("Coral"));
-    Logger.recordOutput(
-            "FieldSimulation/Algae", SimulatedArena.getInstance().getGamePiecesArrayByType("Algae"));
+  public void setRobotPose(Pose2d setupPose) {
+    m_swerveDrive.setPose(setupPose);
+  }
+
+  public void resetRobotPose() {
+    m_swerveDrive.resetPose();
+  }
+
+  // NOTE: NOT CALLED AUTOMATICALLY
+  public void periodic() {
+    Logger.recordOutput("FieldSimulation/Robot"+this.m_id+"/Pose", m_swerveDrive.getPose());
+    Logger.recordOutput("FieldSimulation/Robot"+this.m_id+"/Arm", m_mechanism2d);
   }
 
   public void logMech3d() {
     // Robot specific parts
     Pose3d[] parts = {
-      new Pose3d(),
       new Pose3d(new Translation3d(0, 0, m_originToPivot.getLength()),
                  new Rotation3d(Degrees.of(0), m_arm.getCurrentAngle().times(-1), Degrees.of(0))),
     };
@@ -313,7 +289,7 @@ public class RobotContainer {
         // Insert Mech2d forward kinematics to get orientation, for now plot it at the origin
         new Pose3d(new Translation3d(0,0,2.0), new Rotation3d())
       };
-    } 
+    }
     Logger.recordOutput("heldCoralPosition", held_coral_position);
   }
 }

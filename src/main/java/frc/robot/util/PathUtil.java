@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.DriveIO;
 
 import java.util.ArrayList;
 import java.util.Set;
@@ -89,7 +90,7 @@ public class PathUtil {
    * Drives to the closest FieldPoint on the field (respective of the current alliance).
    */
   public static Command driveToClosestPointTeleopCommandV2(
-      ArrayList<FieldPoint> possibleTargets, Drive swerveDrive) {
+      ArrayList<FieldPoint> possibleTargets, DriveIO swerveDrive) {
     return new DeferredCommand(
         () -> {
           ArrayList<Pose2d> possiblePoses = new ArrayList<Pose2d>();
