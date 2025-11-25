@@ -36,7 +36,7 @@ public class PathUtil {
    * Drives to the Pose on the field.
    */
   @Deprecated
-  public static Command driveToPoseCommand(Pose2d targetPostion, Drive swerveDrive) {
+  public static Command driveToPoseCommand(Pose2d targetPostion, DriveIO swerveDrive) {
     return new DeferredCommand(
         () -> AutoBuilder.pathfindToPose(targetPostion, constraints, 0.0),
         Set.of(swerveDrive));
@@ -58,7 +58,7 @@ public class PathUtil {
    * Drives to the closest FieldPoint on the field (respective of the current alliance).
    */
   public static Command driveToClosestPointAutoCommand(
-      ArrayList<FieldPoint> possibleTargets, Drive swerveDrive) {
+      ArrayList<FieldPoint> possibleTargets, DriveIO swerveDrive) {
     return new DeferredCommand(
         () -> {
           ArrayList<Pose2d> possiblePoses = new ArrayList<Pose2d>();

@@ -21,6 +21,10 @@ public class ChaosCanCoder extends CANcoder {
     super(canId, CanIdentifiers.CTRECANBus);
   }
 
+  public ChaosCanCoder(int canId, String bus_name) {
+    super(canId, bus_name);
+  }
+
   /**
    * Applies/burns the configuration to the motor.
    */

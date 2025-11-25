@@ -10,7 +10,7 @@ import java.util.function.Supplier;
 
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.COTS;
-import org.ironmaple.simulation.drivesims.GyroSimulation;
+// import org.ironmaple.simulation.drivesims.GyroSimulation;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig;
@@ -26,8 +26,8 @@ import frc.robot.generated.TunerConstants;
 
 public class DriveSim extends DriveIO {
   // SimGyro
-  private final GyroIO gyroIO;
-  private final GyroIOInputsAutoLogged gyroInputs = new GyroIOInputsAutoLogged();
+  // private final GyroIO gyroIO;
+  // private final GyroIOInputsAutoLogged gyroInputs = new GyroIOInputsAutoLogged();
 
   // Modules
   private final Module[] modules = new Module[4]; // FL, FR, BL, BR
@@ -38,7 +38,7 @@ public class DriveSim extends DriveIO {
 
   public DriveSim(Supplier<Pose2d> initPose) {
     // Explicitly don't call super here, it will re-init PathPlanner and crash
-    this.gyroIO = new GyroIOSim(new GyroSimulation(0.0, 0.05));
+    // this.gyroIO = new GyroIOSim(new GyroSimulation(0.0, 0.05));
     this.poseSetupSupplier = initPose;
 
     DriveTrainSimulationConfig dtc = DriveTrainSimulationConfig.Default()

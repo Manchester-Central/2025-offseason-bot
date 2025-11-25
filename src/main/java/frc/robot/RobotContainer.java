@@ -21,6 +21,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -54,6 +55,8 @@ import frc.robot.util.PathUtil;
 import frc.robot.util.DriveDirection;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Radians;
 
 import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
@@ -72,7 +75,6 @@ public class RobotContainer {
   private double m_currentSpeedModifier = 1.0;
 
   // Subsystems
-  private Quest m_quest;
   // private final Vision m_vision; // If we do use a limelight
   private final DriveIO m_swerveDrive;
   private final Gripper m_gripper;
@@ -82,15 +84,11 @@ public class RobotContainer {
   private final Gamepad m_driver;
 
   // Mechanism2d Simulation Support
-  private final LoggedMechanism2d m_mechanism2d = new LoggedMechanism2d(0, 0);
-  private final LoggedMechanismRoot2d m_mechanismRoot2d = m_mechanism2d.getRoot("ArmRoot", 0, 0);
-  private final LoggedMechanismLigament2d m_originToPivot =
-      m_mechanismRoot2d.append(new LoggedMechanismLigament2d("Supports", 0.4, 90));
-  //                                                                          meters,     degrees
-  private final LoggedMechanismLigament2d m_armLigament =
-      m_originToPivot.append(new LoggedMechanismLigament2d("Arm", 0.6, -90));
-  private final LoggedMechanismLigament2d m_gripperLigament = 
-      m_armLigament.append(new LoggedMechanismLigament2d("Gripper", 0.2, 0));
+  private final LoggedMechanism2d m_mechanism2d;
+  private final LoggedMechanismRoot2d m_mechanismRoot2d;
+  private final LoggedMechanismLigament2d m_originToPivot;
+  private final LoggedMechanismLigament2d m_armLigament;
+  private final LoggedMechanismLigament2d m_gripperLigament;
 
   // Dashboard inputs
   private LoggedDashboardChooser<Command> m_autoChooser;
@@ -98,8 +96,15 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer(int controllerId) {
     m_id = controllerId;
+
+    m_mechanism2d = new LoggedMechanism2d(0, 0);
+    m_mechanismRoot2d = m_mechanism2d.getRoot("Robot"+controllerId+"ArmRoot", 0, 0);
+    m_originToPivot = m_mechanismRoot2d.append(new LoggedMechanismLigament2d("Robot"+controllerId+"Supports", 0.4, 90));
+    m_armLigament = m_originToPivot.append(new LoggedMechanismLigament2d("Robot"+controllerId+"Arm", 0.6, -90));
+    m_gripperLigament = m_armLigament.append(new LoggedMechanismLigament2d("Robot"+controllerId+"Gripper", 0.2, 0));
+
     m_driver = new Gamepad(controllerId);
-    m_arm = new Arm(m_armLigament);
+    m_arm = new Arm(m_armLigament, controllerId);
     m_gripper = new Gripper(m_gripperLigament);
 
     @SuppressWarnings("unused")
@@ -115,7 +120,7 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                 new ModuleIOTalonFX(TunerConstants.BackRight),
               () -> GeneralConstants.DefaultStartingPose);
-        m_quest = new Quest(drive_obj);
+        Quest m_quest = new Quest(drive_obj);
         drive_obj.setQuest(m_quest);
         m_swerveDrive = drive_obj;
         m_autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -233,8 +238,9 @@ public class RobotContainer {
     m_driver.rightBumper().whileTrue(new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.ScoreLowPose.get()), m_arm));
     m_driver.rightTrigger().whileTrue(new RunCommand(() -> m_gripper.setGripSpeed(GripperConstants.OuttakeSpeed.get()), m_gripper));
 
-    m_driver.y().whileTrue(PathUtil.driveToClosestPointTeleopCommandV2(FieldPoint.getReefDrivePoses(), m_swerveDrive));
-    m_driver.a().whileTrue(PathUtil.driveToClosestPointTeleopCommandV2(FieldPoint.getHpDrivePoses(), m_swerveDrive));
+    // Disabled because PathPlanner can't handle multiple robots doing this at once right now
+    // m_driver.y().whileTrue(PathUtil.driveToClosestPointTeleopCommandV2(FieldPoint.getReefDrivePoses(), m_swerveDrive));
+    // m_driver.a().whileTrue(PathUtil.driveToClosestPointTeleopCommandV2(FieldPoint.getHpDrivePoses(), m_swerveDrive));
 
     m_driver.leftStick().onTrue(new InstantCommand(() -> m_currentSpeedModifier = m_currentSpeedModifier < 1.0 ? 1.0 : GeneralConstants.SlowModeModifier));
     m_driver.rightStick().onTrue(new InstantCommand(() -> m_currentSpeedModifier = m_currentSpeedModifier < 1.0 ? 1.0 : GeneralConstants.SlowModeModifier));
@@ -246,6 +252,10 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
+    if (m_autoChooser == null) {
+      return Commands.none();
+    }
+
     return m_autoChooser.get();
   }
 
@@ -270,6 +280,7 @@ public class RobotContainer {
   public void periodic() {
     Logger.recordOutput("FieldSimulation/Robot"+this.m_id+"/Pose", m_swerveDrive.getPose());
     Logger.recordOutput("FieldSimulation/Robot"+this.m_id+"/Arm", m_mechanism2d);
+    logMech3d();
   }
 
   public void logMech3d() {
@@ -280,16 +291,18 @@ public class RobotContainer {
     };
     // Note, the arm's angle is multiplied by -1 because RollPitchYaw uses slightly different directions
     // than many think are intuitive, +pitch is actually down because of the left facing +y direction
-    Logger.recordOutput("Mech3d", parts);
+    Logger.recordOutput("FieldSimulation/Robot"+this.m_id+"/Mech3d", parts);
 
     // Coral held by the robot (shown as game piece), must be in field relative coordinate frame
     Pose3d[] held_coral_position = {};
+    double arm_angle = m_arm.getCurrentAngle().in(Radians);
     if (m_gripper.hasCoral()) {
       held_coral_position = new Pose3d[]{
         // Insert Mech2d forward kinematics to get orientation, for now plot it at the origin
-        new Pose3d(new Translation3d(0,0,2.0), new Rotation3d())
+        new Pose3d(m_swerveDrive.getPose()).transformBy(new Transform3d(new Translation3d(Meters.of(Math.cos(arm_angle)*0.6), Meters.of(0), Meters.of(1.0+Math.sin(arm_angle)*0.6)),
+                                                                        new Rotation3d(Degrees.of(0), Degrees.of(0), m_swerveDrive.getPose().getRotation().getMeasure().plus(Degrees.of(90)))))
       };
     }
-    Logger.recordOutput("heldCoralPosition", held_coral_position);
+    Logger.recordOutput("FieldSimulation/Robot"+this.m_id+"/heldCoralPosition", held_coral_position);
   }
 }

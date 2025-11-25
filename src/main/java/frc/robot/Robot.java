@@ -224,7 +224,6 @@ public class Robot extends LoggedRobot {
   public void simulationPeriodic() {
     SimulatedArena.getInstance().simulationPeriodic();
     // Updates the primary robot, AdditionalSimRobots will update themselves
-    robotContainer.periodic();
 
     for (AdditionalSimRobot simRobot : AdditionalSimRobot.instances) {
       simRobot.periodic();

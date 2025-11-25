@@ -56,47 +56,63 @@ public class Arm extends SubsystemBase {
   private DCMotorSim m_motorSim = new DCMotorSim(m_armSim, m_DCMotor, 0.001, 0.001);
 
   private Angle m_targetAngle = Degrees.of(120);
-  private ChaosTalonFx m_motor = new ChaosTalonFx(CanIdentifiers.ArmMotorCANID);
-  private ChaosCanCoder m_canCoder = new ChaosCanCoder(CanIdentifiers.ArmCANcoderCANID);
-  private ChaosTalonFxTuner m_talonTuner = new ChaosTalonFxTuner("Arm", m_motor);
-  private ChaosCanCoderTuner m_canCoderTuner = new ChaosCanCoderTuner("Arm", m_canCoder);
+  private ChaosTalonFx m_motor;
+  private ChaosCanCoder m_canCoder;
+  private ChaosTalonFxTuner m_talonTuner;
+  private ChaosCanCoderTuner m_canCoderTuner;
 
-  private DashboardNumber m_canCoderOffsetDegrees = m_canCoderTuner.tunable("Offset_Degrees",
-      //Robot.isReal() ? ArmConstants.canCoderOffsetDegrees : SimArmConstants.canCoderOffsetDegrees, (config, newValue) -> 
-      ArmConstants.canCoderOffsetAngle.in(Degrees), (config, newValue) ->
-      config.MagnetSensor.MagnetOffset = Degrees.of(newValue).in(Rotations));
+  private DashboardNumber m_canCoderOffsetDegrees;
 
-  private DashboardNumber m_kp = m_talonTuner.tunable("kP", ArmConstants.kP, (config, newValue) -> config.Slot0.kP = newValue);
-  private DashboardNumber m_ki = m_talonTuner.tunable("kI", ArmConstants.kI, (config, newValue) -> config.Slot0.kI = newValue);
-  private DashboardNumber m_kd = m_talonTuner.tunable("kD", ArmConstants.kD, (config, newValue) -> config.Slot0.kD = newValue);
-  private DashboardNumber m_kg = m_talonTuner.tunable("kG", ArmConstants.kG, (config, newValue) -> config.Slot0.kG = newValue);
-  private DashboardNumber m_kg2 = m_talonTuner.tunable("kG2", ArmConstants.kG, (config, newValue) -> config.Slot1.kG = newValue);
-  private DashboardNumber m_ks = m_talonTuner.tunable("kS", ArmConstants.kS, (config, newValue) -> config.Slot0.kS = newValue);
-  private DashboardNumber m_kv = m_talonTuner.tunable("kV", ArmConstants.kV, (config, newValue) -> config.Slot0.kV = newValue);
-  private DashboardNumber m_ka = m_talonTuner.tunable("kA", ArmConstants.kA, (config, newValue) -> config.Slot0.kA = newValue);
-  private DashboardNumber m_mmCruiseVelocity = m_talonTuner.tunable(
-      "MM_CruiseVelocity", ArmConstants.MMCruiseVelocity, (config, newValue) -> config.MotionMagic.MotionMagicCruiseVelocity = newValue);
-  private DashboardNumber m_mmAcceleration = m_talonTuner.tunable("MM_Acceleration", ArmConstants.MMAcceleration, (config, newValue) -> config.MotionMagic.MotionMagicAcceleration = newValue);
-  private DashboardNumber m_mmJerk = m_talonTuner.tunable("MM_Jerk", ArmConstants.MMJerk, (config, newValue) -> config.MotionMagic.MotionMagicJerk = newValue);
-  private DashboardNumber m_supplyCurrentLimit = m_talonTuner.tunable(
-      "SupplyCurrentLimit", ArmConstants.SupplyCurrentLimit, (config, newValue) -> config.CurrentLimits.SupplyCurrentLimit = newValue);
-  private DashboardNumber m_statorCurrentLimit = m_talonTuner.tunable(
-      "StatorCurrentLimit", ArmConstants.StatorCurrentLimit, (config, newValue) -> config.CurrentLimits.StatorCurrentLimit = newValue);
+  private DashboardNumber m_kp;
+  private DashboardNumber m_ki;
+  private DashboardNumber m_kd;
+  private DashboardNumber m_kg;
+  private DashboardNumber m_kg2;
+  private DashboardNumber m_ks;
+  private DashboardNumber m_kv;
+  private DashboardNumber m_ka;
+  private DashboardNumber m_mmCruiseVelocity;
+  private DashboardNumber m_mmAcceleration;
+  private DashboardNumber m_mmJerk;
+  private DashboardNumber m_supplyCurrentLimit;
+  private DashboardNumber m_statorCurrentLimit;
   // Sensor Feedback
-  private DashboardNumber m_rotorToSensorRatio = m_talonTuner.tunable("RotorToSensorRatio", ArmConstants.RotorToSensorRatio,
-      (config, newValue) -> config.Feedback.RotorToSensorRatio = newValue);
-  private DashboardNumber m_sensorToMechRatio = m_talonTuner.tunable("SensorToMechanismRatio", ArmConstants.SensorToMechanismRatio,
-      (config, newValue) -> config.Feedback.SensorToMechanismRatio = newValue);
+  private DashboardNumber m_rotorToSensorRatio;
+  private DashboardNumber m_sensorToMechRatio;
 
   // Ramp rates
-  private DashboardNumber m_rampPeriod = m_talonTuner.tunable("VoltageClosedLoopRampPeriod", ArmConstants.VoltageClosedLoopRampPeriod,
-      (config, newValue) -> config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = newValue);
+  private DashboardNumber m_rampPeriod;
 
   /** Creates a new Arm. */
-  public Arm(LoggedMechanismLigament2d ligament) {
+  public Arm(LoggedMechanismLigament2d ligament, int canbus_id) {
     m_ligament = ligament;
     m_ligament.setColor(new Color8Bit(150, 150, 150));
     m_ligament.setLineWeight(3);
+
+    m_motor = new ChaosTalonFx(CanIdentifiers.ArmMotorCANID, "busid"+canbus_id);
+    m_canCoder = new ChaosCanCoder(CanIdentifiers.ArmCANcoderCANID, "busid"+canbus_id);
+    m_talonTuner = new ChaosTalonFxTuner("Arm", m_motor);
+    m_canCoderTuner = new ChaosCanCoderTuner("Arm", m_canCoder);
+    m_canCoderOffsetDegrees = m_canCoderTuner.tunable("Offset_Degrees",
+      //Robot.isReal() ? ArmConstants.canCoderOffsetDegrees : SimArmConstants.canCoderOffsetDegrees, (config, newValue) -> 
+      ArmConstants.canCoderOffsetAngle.in(Degrees), (config, newValue) ->
+      config.MagnetSensor.MagnetOffset = Degrees.of(newValue).in(Rotations));
+    m_kp = m_talonTuner.tunable("kP", ArmConstants.kP, (config, newValue) -> config.Slot0.kP = newValue);
+    m_ki = m_talonTuner.tunable("kI", ArmConstants.kI, (config, newValue) -> config.Slot0.kI = newValue);
+    m_kd = m_talonTuner.tunable("kD", ArmConstants.kD, (config, newValue) -> config.Slot0.kD = newValue);
+    m_kg = m_talonTuner.tunable("kG", ArmConstants.kG, (config, newValue) -> config.Slot0.kG = newValue);
+    m_kg2 = m_talonTuner.tunable("kG2", ArmConstants.kG, (config, newValue) -> config.Slot1.kG = newValue);
+    m_ks = m_talonTuner.tunable("kS", ArmConstants.kS, (config, newValue) -> config.Slot0.kS = newValue);
+    m_kv = m_talonTuner.tunable("kV", ArmConstants.kV, (config, newValue) -> config.Slot0.kV = newValue);
+    m_ka = m_talonTuner.tunable("kA", ArmConstants.kA, (config, newValue) -> config.Slot0.kA = newValue);
+    m_mmCruiseVelocity = m_talonTuner.tunable("MM_CruiseVelocity", ArmConstants.MMCruiseVelocity, (config, newValue) -> config.MotionMagic.MotionMagicCruiseVelocity = newValue);
+    m_mmAcceleration = m_talonTuner.tunable("MM_Acceleration", ArmConstants.MMAcceleration, (config, newValue) -> config.MotionMagic.MotionMagicAcceleration = newValue);
+    m_mmJerk = m_talonTuner.tunable("MM_Jerk", ArmConstants.MMJerk, (config, newValue) -> config.MotionMagic.MotionMagicJerk = newValue);
+    m_supplyCurrentLimit = m_talonTuner.tunable("SupplyCurrentLimit", ArmConstants.SupplyCurrentLimit, (config, newValue) -> config.CurrentLimits.SupplyCurrentLimit = newValue);
+    m_statorCurrentLimit = m_talonTuner.tunable("StatorCurrentLimit", ArmConstants.StatorCurrentLimit, (config, newValue) -> config.CurrentLimits.StatorCurrentLimit = newValue);
+    m_rotorToSensorRatio = m_talonTuner.tunable("RotorToSensorRatio", ArmConstants.RotorToSensorRatio, (config, newValue) -> config.Feedback.RotorToSensorRatio = newValue);
+    m_sensorToMechRatio = m_talonTuner.tunable("SensorToMechanismRatio", ArmConstants.SensorToMechanismRatio, (config, newValue) -> config.Feedback.SensorToMechanismRatio = newValue);
+    m_rampPeriod = m_talonTuner.tunable("VoltageClosedLoopRampPeriod", ArmConstants.VoltageClosedLoopRampPeriod, (config, newValue) -> config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = newValue);
 
     m_canCoder.Configuration.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.75;
     m_canCoder.Configuration.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
