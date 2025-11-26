@@ -22,6 +22,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -31,6 +32,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.Constants.GeneralConstants;
 import frc.robot.Constants.GripperConstants;
+import frc.robot.Constants.RobotDimensions;
 import frc.robot.Constants.ArmConstants.ArmPoses;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.HPIntakeCommand;
@@ -49,6 +51,12 @@ import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.multisim.AdditionalSimRobot;
 
+import org.ironmaple.simulation.IntakeSimulation;
+import org.ironmaple.simulation.SimulatedArena;
+import org.ironmaple.simulation.gamepieces.GamePieceProjectile;
+import org.ironmaple.simulation.seasonspecific.crescendo2024.NoteOnFly;
+import org.ironmaple.simulation.seasonspecific.reefscape2025.Arena2025Reefscape;
+import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeCoralOnFly;
 import org.littletonrobotics.junction.Logger;
 import frc.robot.util.FieldPoint;
 import frc.robot.util.PathUtil;
@@ -56,6 +64,7 @@ import frc.robot.util.DriveDirection;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radians;
 
 import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
@@ -79,6 +88,7 @@ public class RobotContainer {
   private final DriveIO m_swerveDrive;
   private final Gripper m_gripper;
   private final Arm m_arm;
+  private IntakeSimulation m_intakeSim;
 
   // Controller
   private final Gamepad m_driver;
@@ -129,8 +139,21 @@ public class RobotContainer {
 
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
-        m_swerveDrive =
-            new DriveSim(() -> AdditionalSimRobot.ROBOTS_STARTING_POSITIONS[m_id]);
+        var drive = new DriveSim(() -> AdditionalSimRobot.ROBOTS_STARTING_POSITIONS[m_id]);
+        m_intakeSim = IntakeSimulation.OverTheBumperIntake(
+            // Specify the type of game pieces that the intake can collect
+            "Coral",
+            // Specify the drivetrain to which this intake is attached
+            drive.swerveDriveSim,
+            // Width of the intake
+            RobotDimensions.SideSideLength,
+            // The extension length of the intake beyond the robot's frame (when activated)
+            Meters.of(0.2),
+            // The intake is mounted on the back side of the chassis
+            IntakeSimulation.IntakeSide.BACK,
+            // The intake can hold up to 1 piece
+            1);
+        m_swerveDrive = drive;
         break;
 
       default:
@@ -196,7 +219,9 @@ public class RobotContainer {
     m_swerveDrive.setDefaultCommand(getDefaultSwerveCommand());
 
     // Manual Arm Control
-    m_arm.setDefaultCommand(new RunCommand(() -> m_arm.setTargetAngle(m_gripper.hasCoral() ? ArmPoses.CoralGrippedPose.get() : ArmPoses.StowPose.get()), m_arm));
+    m_arm.setDefaultCommand(new RunCommand(() -> {
+      m_arm.setTargetAngle(m_gripper.hasCoral() ? ArmPoses.CoralGrippedPose.get() : ArmPoses.StowPose.get());
+    }, m_arm));
     // m_arm.setDefaultCommand(new RunCommand(() -> m_arm.setSpeed(m_operator.getLeftY() * 0.5), m_arm));
 
     // Gripper Default
@@ -235,8 +260,33 @@ public class RobotContainer {
     // m_driver.rightBumper().whileTrue(new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.ScoreLowPose.get()), m_arm)
     // .alongWith (PathUtil.driveToClosestPointTeleopCommandV2(FieldPoint.getReefDrivePoses(), m_swerveDrive)));
 
-    m_driver.rightBumper().whileTrue(new RunCommand(() -> m_arm.setTargetAngle(ArmPoses.ScoreLowPose.get()), m_arm));
-    m_driver.rightTrigger().whileTrue(new RunCommand(() -> m_gripper.setGripSpeed(GripperConstants.OuttakeSpeed.get()), m_gripper));
+    m_driver.rightBumper().whileTrue(new RunCommand(() -> {
+      m_arm.setTargetAngle(ArmPoses.ScoreLowPose.get());
+    }, m_arm));
+    // m_driver.rightTrigger().whileTrue(new RunCommand(() -> m_gripper.setGripSpeed(GripperConstants.OuttakeSpeed.get()), m_gripper));
+    m_driver.a().whileTrue(new RunCommand(() -> {
+      m_gripper.setGripSpeed(GripperConstants.OuttakeSpeed.get());
+      if (m_intakeSim != null && m_intakeSim.getGamePiecesAmount() > 0) {
+        m_intakeSim.obtainGamePieceFromIntake();
+        m_gripper.setCoralSim(false);
+        var driveSimulation = ((DriveSim)m_swerveDrive).swerveDriveSim;
+        SimulatedArena.getInstance().addGamePieceProjectile(new ReefscapeCoralOnFly(
+            // Obtain robot position from drive simulation
+            driveSimulation.getSimulatedDriveTrainPose().getTranslation(),
+            // The scoring mechanism is installed at (0.46, 0) (meters) on the robot
+            new Translation2d(0.35, 0),
+            // Obtain robot speed from drive simulation
+            driveSimulation.getDriveTrainSimulatedChassisSpeedsFieldRelative(),
+            // Obtain robot facing from drive simulation
+            driveSimulation.getSimulatedDriveTrainPose().getRotation(),
+            // The height at which the coral is ejected
+            Meters.of(1.28),
+            // The initial speed of the coral
+            MetersPerSecond.of(0),
+            // The coral is ejected at a 35-degree slope
+            Degrees.of(-35)));
+      }
+    }, m_gripper));
 
     // Disabled because PathPlanner can't handle multiple robots doing this at once right now
     // m_driver.y().whileTrue(PathUtil.driveToClosestPointTeleopCommandV2(FieldPoint.getReefDrivePoses(), m_swerveDrive));
@@ -278,12 +328,32 @@ public class RobotContainer {
 
   // NOTE: NOT CALLED AUTOMATICALLY
   public void periodic() {
-    Logger.recordOutput("FieldSimulation/Robot"+this.m_id+"/Pose", m_swerveDrive.getPose());
-    Logger.recordOutput("FieldSimulation/Robot"+this.m_id+"/Arm", m_mechanism2d);
-    logMech3d();
+    if (m_intakeSim != null) {
+      // Controls two things:
+      // 1) That the collision box exists
+      // 2) Automatically picks up pieces when they enter that box
+      // This means the intake should always be on when the arm is in position,
+      // and off when it's anywhere else
+      if (m_arm.atAngle(ArmPoses.FloorIntakePose.get())) {
+        m_intakeSim.startIntake();
+      } else {
+        m_intakeSim.stopIntake();
+      }
+
+      // If we're capable of picking up a piece, tell the gripper we have it but don't take it from the intake yet
+      // The shooting mechanism will take it from the intake when that happens.
+      if (!m_gripper.hasCoral() && m_intakeSim.getGamePiecesAmount() > 0) {
+        m_gripper.setCoralSim(true);
+      }
+      FieldSimLogging();
+    }
   }
 
-  public void logMech3d() {
+  public void FieldSimLogging() {
+    // Basics
+    Logger.recordOutput("FieldSimulation/Robot"+this.m_id+"/Pose", m_swerveDrive.getPose());
+    Logger.recordOutput("FieldSimulation/Robot"+this.m_id+"/Arm", m_mechanism2d);
+
     // Robot specific parts
     Pose3d[] parts = {
       new Pose3d(new Translation3d(0, 0, m_originToPivot.getLength()),
@@ -299,7 +369,7 @@ public class RobotContainer {
     if (m_gripper.hasCoral()) {
       held_coral_position = new Pose3d[]{
         // Insert Mech2d forward kinematics to get orientation, for now plot it at the origin
-        new Pose3d(m_swerveDrive.getPose()).transformBy(new Transform3d(new Translation3d(Meters.of(Math.cos(arm_angle)*0.6), Meters.of(0), Meters.of(1.0+Math.sin(arm_angle)*0.6)),
+        new Pose3d(m_swerveDrive.getPose()).transformBy(new Transform3d(new Translation3d(Meters.of(Math.cos(arm_angle)*0.6), Meters.of(0), Meters.of(0.2+Math.sin(arm_angle)*0.6)),
                                                                         new Rotation3d(Degrees.of(0), Degrees.of(0), m_swerveDrive.getPose().getRotation().getMeasure().plus(Degrees.of(90)))))
       };
     }

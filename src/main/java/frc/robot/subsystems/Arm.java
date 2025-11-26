@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import static edu.wpi.first.units.Units.Rotations;
 
+import org.ironmaple.simulation.IntakeSimulation;
 import org.littletonrobotics.junction.Logger;
 
 import com.chaos131.util.DashboardNumber;
@@ -85,12 +86,15 @@ public class Arm extends SubsystemBase {
 
   /** Creates a new Arm. */
   public Arm(LoggedMechanismLigament2d ligament, int canbus_id) {
+    super("Robot"+canbus_id+"ArmSubsystem");
     m_ligament = ligament;
     m_ligament.setColor(new Color8Bit(150, 150, 150));
     m_ligament.setLineWeight(3);
 
-    m_motor = new ChaosTalonFx(CanIdentifiers.ArmMotorCANID, "busid"+canbus_id);
-    m_canCoder = new ChaosCanCoder(CanIdentifiers.ArmCANcoderCANID, "busid"+canbus_id);
+    // Setup motors now
+    int[] busid = CanIdentifiers.ArmCanIDs[canbus_id];
+    m_motor = new ChaosTalonFx(busid[0], "busid"+canbus_id);
+    m_canCoder = new ChaosCanCoder(busid[1], "busid"+canbus_id);
     m_talonTuner = new ChaosTalonFxTuner("Arm", m_motor);
     m_canCoderTuner = new ChaosCanCoderTuner("Arm", m_canCoder);
     m_canCoderOffsetDegrees = m_canCoderTuner.tunable("Offset_Degrees",
@@ -125,7 +129,7 @@ public class Arm extends SubsystemBase {
     m_motor.Configuration.CurrentLimits.SupplyCurrentLimit = m_supplyCurrentLimit.get();
     m_motor.Configuration.CurrentLimits.StatorCurrentLimitEnable = true;
     m_motor.Configuration.CurrentLimits.StatorCurrentLimit = m_statorCurrentLimit.get();
-    m_motor.Configuration.Feedback.FeedbackRemoteSensorID = CanIdentifiers.ArmCANcoderCANID;
+    m_motor.Configuration.Feedback.FeedbackRemoteSensorID = busid[1];
     m_motor.Configuration.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
     m_motor.Configuration.Feedback.RotorToSensorRatio = m_rotorToSensorRatio.get();
     m_motor.Configuration.ClosedLoopRamps.VoltageClosedLoopRampPeriod = m_rampPeriod.get();
@@ -190,6 +194,14 @@ public class Arm extends SubsystemBase {
 
   public Angle getCurrentAngle() {
     return m_canCoder.getPosition().getValue();
+  }
+
+  /**
+   * @param a - Angle to compare against
+   * @return true if within AngleTolerance
+   */
+  public boolean atAngle(Angle a) {
+    return Math.abs(getCurrentAngle().minus(a).in(Degrees)) < ArmConstants.AngleTolerance.get().in(Degrees);
   }
 
   /**

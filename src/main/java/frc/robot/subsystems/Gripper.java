@@ -16,10 +16,13 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.CanIdentifiers;
+import frc.robot.Constants.GeneralConstants;
 import frc.robot.Constants.GripperConstants;
+import frc.robot.Robot;
 import frc.robot.util.ChaosTalonFxs;
 import frc.robot.util.ChaosTalonFxsTuner;
 
@@ -27,8 +30,9 @@ public class Gripper extends SubsystemBase {
   private ChaosTalonFxs m_gripperMotor = new ChaosTalonFxs(CanIdentifiers.GripperMotorCANID);
   private ChaosTalonFxsTuner m_gripperTuner = new ChaosTalonFxsTuner("Gripper", m_gripperMotor);
 
-  private static boolean m_hasCoralGripped = false;
-  private static boolean m_hasCoralGrippedSim = false;
+  private boolean m_hasCoralGripped = false;
+  private boolean m_hasCoralGrippedSim = false;
+  private Timer m_coralGripTimer = new Timer();
   private Debouncer coralDebouncer = new Debouncer(0.5,DebounceType.kBoth);
   private DashboardNumber m_supplyCurrentLimit = m_gripperTuner.tunable(
       "SupplyCurrentLimit", GripperConstants.SupplyCurrentLimit.in(Amps), (config, newValue) -> config.CurrentLimits.SupplyCurrentLimit = newValue);
@@ -60,6 +64,7 @@ public class Gripper extends SubsystemBase {
    */
   public void setGripSpeed(double newSpeed) {
     m_gripperMotor.set(newSpeed);
+    m_coralGripTimer.restart();
   }
 
   public double getGripSpeed() {
@@ -70,9 +75,9 @@ public class Gripper extends SubsystemBase {
    * Checks if there is a coral at the sensor.
    */
   public boolean hasCoral() {
-    // if (Robot.isSimulation()) {
-    //   return m_hasCoralGrippedSim; 
-    // }
+    if (Robot.isSimulation()) {
+      return m_hasCoralGrippedSim && m_coralGripTimer.get() < GeneralConstants.PieceShootDuration; 
+    }
     return m_hasCoralGripped; 
   }
 

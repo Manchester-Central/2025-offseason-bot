@@ -34,7 +34,7 @@ public class DriveSim extends DriveIO {
 
   // Sim Setup Related
   private final Supplier<Pose2d> poseSetupSupplier;
-  private final SwerveDriveSimulation swerveDriveSim;
+  public final SwerveDriveSimulation swerveDriveSim;
 
   public DriveSim(Supplier<Pose2d> initPose) {
     // Explicitly don't call super here, it will re-init PathPlanner and crash

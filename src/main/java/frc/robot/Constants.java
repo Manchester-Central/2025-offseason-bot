@@ -59,8 +59,8 @@ public final class Constants {
 
   public static class GeneralConstants {
     public static final Pose2d DefaultStartingPose = new Pose2d(7.1, 2, Rotation2d.fromDegrees(180));
-
     public static final double SlowModeModifier = 0.5;
+    public static final double PieceShootDuration = 1.0;
   }
 
   /** This contains all of our constants for CAN IDs and Can Bus Names. */
@@ -70,8 +70,16 @@ public final class Constants {
     public static final String CTRECANBus = "canivore";
 
     // Arm (20s)
-    public static final int ArmMotorCANID = 20;
-    public static final int ArmCANcoderCANID = 21;
+    // public static final int ArmMotorCANID = 20;
+    // public static final int ArmCANcoderCANID = 21;
+    public static final int[][] ArmCanIDs = {
+      {20, 21}, // Robot 0 {MotorID, CANCoderID}
+      {22, 23}, // Robot 1
+      {24, 25}, // Robot 2
+      {26, 27}, // Robot 3
+      {28, 29}, // Robot 4
+      {30, 31}, // Robot 5
+    };
 
     // Gripper (50s)
     public static final int GripperMotorCANID = 52;
@@ -85,12 +93,6 @@ public final class Constants {
     public static final DashboardNumber PassiveIntakeSpeed = new DashboardNumber("Gripper/PassiveIntake", -0.4, true, (x) -> {});
     public static final DashboardNumber OuttakeSpeed = new DashboardNumber("Gripper/Outtake", 0.4, true, (x) -> {});
     public static final DashboardUnit<TimeUnit, Time> AutoOuttakeTime = new DashboardUnit<TimeUnit,Time>("Gripper/AutoOuttakeTime", Seconds.of(0.3));
-  }
-
-  public static class SimArmConstants {
-    public static final double kP = 5.0;
-    public static final double kI = 0.0;
-    public static final double kD = 0.0;
   }
 
   public static class ArmConstants {
