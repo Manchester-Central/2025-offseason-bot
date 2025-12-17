@@ -2,12 +2,18 @@ plugins {
     id "java"
     id "edu.wpi.first.GradleRIO" version "2025.3.2"
     id "com.peterabeles.gversion" version "1.10"
+    id 'org.openjfx.javafxplugin' version '0.1.0'
     // id "com.diffplug.spotless" version "6.12.0"
 }
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
+}
+
+javafx {
+    version = '21.0.9' // Specify the JavaFX library version here
+    modules = ['javafx.controls', 'javafx.fxml', 'javafx.media']
 }
 
 def ROBOT_MAIN_CLASS = "frc.robot.Main"

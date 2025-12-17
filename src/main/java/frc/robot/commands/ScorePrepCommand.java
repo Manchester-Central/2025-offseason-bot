@@ -5,7 +5,6 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants.GripperConstants;
 import frc.robot.Constants.ArmConstants.ArmPoses;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Gripper;
@@ -13,12 +12,12 @@ import frc.robot.subsystems.Gripper;
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class ScorePrepCommand extends Command {
   private Arm m_arm;
-  private Gripper m_gripper;
+  // private Gripper m_gripper;
 
   /** Creates a new ScorePrep. */
   public ScorePrepCommand(Arm arm, Gripper gripper) {
     m_arm = arm;
-    m_gripper = gripper;
+    // m_gripper = gripper;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_arm);
   }

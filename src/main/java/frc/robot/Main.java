@@ -14,7 +14,9 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.RobotBase;
+import frc.robot.subsystems.Audio;
 import frc.robot.util.FieldPoint;
+import javafx.application.Platform;
 
 /**
  * Do NOT add any static variables to this class, or any initialization at all. Unless you know what
@@ -31,6 +33,7 @@ public final class Main {
    */
   public static void main(String... args) {
     FieldPoint.loadAprilTagData();
+    Platform.startup(() -> Audio.getInstance());
     RobotBase.startRobot(Robot::new);
   }
 }

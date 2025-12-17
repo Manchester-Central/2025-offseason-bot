@@ -188,7 +188,7 @@ public class Drive extends DriveIO {
     }
 
     // Update gyro alert
-    gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.currentMode != Mode.SIM);
+    gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.StartingMode != Mode.SIM);
   }
 
   /**

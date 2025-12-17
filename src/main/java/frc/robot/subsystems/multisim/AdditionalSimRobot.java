@@ -60,9 +60,9 @@ public class AdditionalSimRobot extends SubsystemBase {
   /**
    * Object specific member variables and functions
    */
-  private final RobotContainer m_RobotContainer;
+  public final RobotContainer m_RobotContainer;
   private final Pose2d waitingPose;
-  private final Pose2d startingPose;
+  // private final Pose2d startingPose;
   private final int id;
 
   private AdditionalSimRobot(int id) {
@@ -70,7 +70,7 @@ public class AdditionalSimRobot extends SubsystemBase {
     this.m_RobotContainer = new RobotContainer(id);
     // this.m_driver = new Gamepad(id);
     this.waitingPose = WAITING_POSITIONS[this.id];
-    this.startingPose = ROBOTS_STARTING_POSITIONS[this.id];
+    // this.startingPose = ROBOTS_STARTING_POSITIONS[this.id];
     // this.m_mechanismRoot2d = m_mechanism2d.getRoot("ArmRoot", -0.1, 0.4);
     // this.m_armLigament = m_mechanismRoot2d.append(new LoggedMechanismLigament2d("Arm", 0.6, 0));
     // this.m_arm = new Arm(m_armLigament);
@@ -130,7 +130,6 @@ public class AdditionalSimRobot extends SubsystemBase {
 
   @Override
   public void simulationPeriodic() {
-    // Not actually a subsystem, so we manually call it
     m_RobotContainer.periodic();
   }
 
@@ -310,10 +309,10 @@ public class AdditionalSimRobot extends SubsystemBase {
     // Obtain chassis speeds from joystick input
     final Supplier<ChassisSpeeds> joystickSpeeds = () -> new ChassisSpeeds(
       this.id < 3
-      ? -joystick.getLeftY() * m_RobotContainer.getDriveSystem().getMaxLinearSpeedMetersPerSec()
-      : joystick.getLeftY() * m_RobotContainer.getDriveSystem().getMaxLinearSpeedMetersPerSec(),
-      -joystick.getLeftX() * m_RobotContainer.getDriveSystem().getMaxLinearSpeedMetersPerSec(),
-      -joystick.getRightX() * m_RobotContainer.getDriveSystem().getMaxAngularSpeedRadPerSec());
+      ? -joystick.getSlewLeftY() * m_RobotContainer.getDriveSystem().getMaxLinearSpeedMetersPerSec()
+      : joystick.getSlewLeftY() * m_RobotContainer.getDriveSystem().getMaxLinearSpeedMetersPerSec(),
+      -joystick.getSlewLeftX() * m_RobotContainer.getDriveSystem().getMaxLinearSpeedMetersPerSec(),
+      -joystick.getSlewRightX() * m_RobotContainer.getDriveSystem().getMaxAngularSpeedRadPerSec());
 
     // Obtain driverstation facing for opponent driver station
     // final Supplier<Rotation2d> opponentDriverStationFacing = () ->

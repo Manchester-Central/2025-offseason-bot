@@ -21,7 +21,6 @@ import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import static edu.wpi.first.units.Units.Rotations;
 
-import org.ironmaple.simulation.IntakeSimulation;
 import org.littletonrobotics.junction.Logger;
 
 import com.chaos131.util.DashboardNumber;

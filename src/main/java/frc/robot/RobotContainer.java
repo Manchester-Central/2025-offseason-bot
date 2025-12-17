@@ -32,6 +32,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.Constants.GeneralConstants;
 import frc.robot.Constants.GripperConstants;
+import frc.robot.Constants.Mode;
 import frc.robot.Constants.RobotDimensions;
 import frc.robot.Constants.ArmConstants.ArmPoses;
 import frc.robot.commands.DriveCommands;
@@ -53,9 +54,6 @@ import frc.robot.subsystems.multisim.AdditionalSimRobot;
 
 import org.ironmaple.simulation.IntakeSimulation;
 import org.ironmaple.simulation.SimulatedArena;
-import org.ironmaple.simulation.gamepieces.GamePieceProjectile;
-import org.ironmaple.simulation.seasonspecific.crescendo2024.NoteOnFly;
-import org.ironmaple.simulation.seasonspecific.reefscape2025.Arena2025Reefscape;
 import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeCoralOnFly;
 import org.littletonrobotics.junction.Logger;
 import frc.robot.util.FieldPoint;
@@ -82,6 +80,13 @@ public class RobotContainer {
   private int m_id;
   // private boolean m_isAutoAlign = true;
   private double m_currentSpeedModifier = 1.0;
+  private Mode m_currentMode = Constants.StartingMode;
+  public Mode getCurrentMode() {
+    return m_currentMode;
+  }
+  public void setCurrentMode(Mode mode) {
+    m_currentMode = mode;
+  }
 
   // Subsystems
   // private final Vision m_vision; // If we do use a limelight
@@ -113,13 +118,13 @@ public class RobotContainer {
     m_armLigament = m_originToPivot.append(new LoggedMechanismLigament2d("Robot"+controllerId+"Arm", 0.6, -90));
     m_gripperLigament = m_armLigament.append(new LoggedMechanismLigament2d("Robot"+controllerId+"Gripper", 0.2, 0));
 
-    m_driver = new Gamepad(controllerId);
+    m_driver = new Gamepad(controllerId, 4.0, 4.0);
     m_arm = new Arm(m_armLigament, controllerId);
     m_gripper = new Gripper(m_gripperLigament);
 
     @SuppressWarnings("unused")
     FieldPoint _dummy = FieldPoint.ReefPose10;
-    switch (Constants.currentMode) {
+    switch (m_currentMode) {
       case REAL:
         // Real robot, instantiate hardware IO implementations
         var drive_obj = 
@@ -202,9 +207,9 @@ public class RobotContainer {
   private Command getDefaultSwerveCommand() {
     return DriveCommands.joystickDrive(
       m_swerveDrive,
-      () -> this.m_id < 3 ?  m_driver.getLeftY() : -m_driver.getLeftY(), // Multisim fix
-      () -> this.m_id < 3 ? -m_driver.getLeftX() :  m_driver.getLeftX(),
-      () -> -m_driver.getRightX(),
+      () -> this.m_id < 3 ?  m_driver.getSlewLeftY() : -m_driver.getSlewLeftY(), // Multisim fix
+      () -> this.m_id < 3 ? -m_driver.getSlewLeftX() :  m_driver.getSlewLeftX(),
+      () -> -m_driver.getSlewRightX(),
       () -> m_currentSpeedModifier);
   }
 
@@ -233,8 +238,8 @@ public class RobotContainer {
         .whileTrue(
             DriveCommands.joystickDriveAtAngle(
                 m_swerveDrive,
-                () -> m_driver.getLeftY(),
-                () -> -m_driver.getLeftX(),
+                () -> m_driver.getSlewLeftY(),
+                () -> -m_driver.getSlewLeftX(),
                 () -> DriveDirection.Away.getAllianceAngle(),
                 () -> m_currentSpeedModifier));
 
@@ -328,6 +333,11 @@ public class RobotContainer {
 
   // NOTE: NOT CALLED AUTOMATICALLY
   public void periodic() {
+    if (getCurrentMode() == Mode.DISABLED) {
+      m_currentSpeedModifier = 0;
+    } else {
+      m_currentSpeedModifier = 1.0;
+    }
     if (m_intakeSim != null) {
       // Controls two things:
       // 1) That the collision box exists

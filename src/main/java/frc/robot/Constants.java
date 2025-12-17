@@ -44,7 +44,7 @@ import edu.wpi.first.wpilibj.RobotBase;
  */
 public final class Constants {
   public static final Mode simMode = Mode.SIM;
-  public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
+  public static final Mode StartingMode = RobotBase.isReal() ? Mode.REAL : simMode;
 
   public static enum Mode {
     /** Running on a real robot. */
@@ -54,7 +54,10 @@ public final class Constants {
     SIM,
 
     /** Replaying from a log file. */
-    REPLAY
+    REPLAY,
+
+    /** Stops the robot because I can't override the driverstation from the robot itself */
+    DISABLED
   }
 
   public static class GeneralConstants {
