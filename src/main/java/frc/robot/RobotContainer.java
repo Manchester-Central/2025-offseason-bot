@@ -65,6 +65,9 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radians;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
@@ -87,6 +90,7 @@ public class RobotContainer {
   public void setCurrentMode(Mode mode) {
     m_currentMode = mode;
   }
+  private List<Pose2d> m_source_poses;
 
   // Subsystems
   // private final Vision m_vision; // If we do use a limelight
@@ -121,6 +125,12 @@ public class RobotContainer {
     m_driver = new Gamepad(controllerId, 4.0, 4.0);
     m_arm = new Arm(m_armLigament, controllerId);
     m_gripper = new Gripper(m_gripperLigament);
+
+    m_source_poses = new ArrayList<>();
+    m_source_poses.add(FieldPoint.leftSource.getBluePose());
+    m_source_poses.add(FieldPoint.leftSource.getRedPose());
+    m_source_poses.add(FieldPoint.rightSource.getBluePose());
+    m_source_poses.add(FieldPoint.rightSource.getRedPose());
 
     @SuppressWarnings("unused")
     FieldPoint _dummy = FieldPoint.ReefPose10;
@@ -274,20 +284,23 @@ public class RobotContainer {
       if (m_intakeSim != null && m_intakeSim.getGamePiecesAmount() > 0) {
         m_intakeSim.obtainGamePieceFromIntake();
         m_gripper.setCoralSim(false);
+        double arm_angle = m_arm.getCurrentAngle().in(Radians);
+        double arm_length = 0.6; // meters
+        var coral_pose = Meters.of(0.406+Math.sin(arm_angle)*arm_length);
         var driveSimulation = ((DriveSim)m_swerveDrive).swerveDriveSim;
         SimulatedArena.getInstance().addGamePieceProjectile(new ReefscapeCoralOnFly(
             // Obtain robot position from drive simulation
             driveSimulation.getSimulatedDriveTrainPose().getTranslation(),
             // The scoring mechanism is installed at (0.46, 0) (meters) on the robot
-            new Translation2d(0.35, 0),
+            new Translation2d(Math.cos(arm_angle)*arm_length-0.083, 0),
             // Obtain robot speed from drive simulation
             driveSimulation.getDriveTrainSimulatedChassisSpeedsFieldRelative(),
             // Obtain robot facing from drive simulation
             driveSimulation.getSimulatedDriveTrainPose().getRotation(),
             // The height at which the coral is ejected
-            Meters.of(1.28),
+            Meters.of(coral_pose.in(Meters)+0.1),
             // The initial speed of the coral
-            MetersPerSecond.of(0),
+            MetersPerSecond.of(0.05),
             // The coral is ejected at a 35-degree slope
             Degrees.of(-35)));
       }
@@ -335,9 +348,11 @@ public class RobotContainer {
   public void periodic() {
     if (getCurrentMode() == Mode.DISABLED) {
       m_currentSpeedModifier = 0;
+      return;
     } else {
       m_currentSpeedModifier = 1.0;
     }
+
     if (m_intakeSim != null) {
       // Controls two things:
       // 1) That the collision box exists
@@ -348,6 +363,15 @@ public class RobotContainer {
         m_intakeSim.startIntake();
       } else {
         m_intakeSim.stopIntake();
+      }
+
+      for (Pose2d source_pose : m_source_poses) {
+        if (m_swerveDrive.getPose().getTranslation().getDistance(source_pose.getTranslation()) < 0.5 &&
+            Math.abs(m_swerveDrive.getPose().getRotation().minus(source_pose.getRotation()).getDegrees()) < 15 &&
+            !m_gripper.hasCoral() && m_arm.atAngle(ArmPoses.HPIntakePose.get())) {
+          m_gripper.setCoralSim(true);
+          m_intakeSim.setGamePiecesCount(1);
+        }
       }
 
       // If we're capable of picking up a piece, tell the gripper we have it but don't take it from the intake yet
@@ -376,11 +400,12 @@ public class RobotContainer {
     // Coral held by the robot (shown as game piece), must be in field relative coordinate frame
     Pose3d[] held_coral_position = {};
     double arm_angle = m_arm.getCurrentAngle().in(Radians);
+    double arm_length = 0.6; // meters
     if (m_gripper.hasCoral()) {
       held_coral_position = new Pose3d[]{
         // Insert Mech2d forward kinematics to get orientation, for now plot it at the origin
-        new Pose3d(m_swerveDrive.getPose()).transformBy(new Transform3d(new Translation3d(Meters.of(Math.cos(arm_angle)*0.6), Meters.of(0), Meters.of(0.2+Math.sin(arm_angle)*0.6)),
-                                                                        new Rotation3d(Degrees.of(0), Degrees.of(0), m_swerveDrive.getPose().getRotation().getMeasure().plus(Degrees.of(90)))))
+        new Pose3d(m_swerveDrive.getPose()).transformBy(new Transform3d(new Translation3d(Meters.of(Math.cos(arm_angle)*arm_length-0.083), Meters.of(0), Meters.of(0.406+Math.sin(arm_angle)*arm_length)),
+                                                                        new Rotation3d(Degrees.of(0), Degrees.of(0), Degrees.of(90))))
       };
     }
     Logger.recordOutput("FieldSimulation/Robot"+this.m_id+"/heldCoralPosition", held_coral_position);

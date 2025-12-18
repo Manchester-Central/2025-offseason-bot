@@ -280,11 +280,10 @@ public class Robot extends LoggedRobot {
 
     if (m_game_state == game_state.GAME_OVER) {
       var num_algae = SimulatedArena.getInstance().getGamePiecesByType("Algae").size();
-      // Audio.getInstance().playAudioFromStart(Audio.GAME_OVER, 1.0);
-      if (m_timer.get() - (end_game_time + end_game_duration) > (num_algae-6)/1.5) {
+      if (m_timer.get() - (end_game_time + end_game_duration) > (num_algae-6)/5.0) {
         spawnWinnerBall();
       }
-      if (m_timer.get() > end_game_time+end_game_duration+10) {
+      if (m_timer.get() > end_game_time+end_game_duration+7) {
         // if we're past the game timer plus 10 seconds, move into disabled mode finally
         m_game_state = game_state.DISABLED;
       }
