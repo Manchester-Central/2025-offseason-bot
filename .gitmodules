@@ -1,0 +1,3 @@
+[submodule "CHAOS-Shared-Code"]
+	path = CHAOS-Shared-Code
+	url = ./CHAOS-Shared-Code

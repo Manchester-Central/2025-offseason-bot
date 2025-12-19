@@ -1,7 +1,7 @@
 plugins {
     id "java"
     id "edu.wpi.first.GradleRIO" version "2025.3.2"
-    id "com.peterabeles.gversion" version "1.10"
+    id "com.peterabeles.gversion" version "1.10.3"
     // id "com.diffplug.spotless" version "6.12.0"
 }
 
@@ -69,26 +69,26 @@ task(replayWatch, type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
-def secretsFile = file("secrets.json")
-if (secretsFile.exists()) {
-    def secrets = new groovy.json.JsonSlurper().parseText(secretsFile.text)
-    project.ext.sharedCodeUsername = secrets.github_package_auth.username
-    project.ext.sharedCodePassword = secrets.github_package_auth.personal_access_token
-}
-else {
-    project.ext.sharedCodeUsername = System.getenv('CHAOS_PACKAGE_USERNAME')
-    project.ext.sharedCodePassword = System.getenv('CHAOS_PACKAGE_PASSWORD')
-}
+// def secretsFile = file("secrets.json")
+// if (secretsFile.exists()) {
+//     def secrets = new groovy.json.JsonSlurper().parseText(secretsFile.text)
+//     project.ext.sharedCodeUsername = secrets.github_package_auth.username
+//     project.ext.sharedCodePassword = secrets.github_package_auth.personal_access_token
+// }
+// else {
+//     project.ext.sharedCodeUsername = System.getenv('CHAOS_PACKAGE_USERNAME')
+//     project.ext.sharedCodePassword = System.getenv('CHAOS_PACKAGE_PASSWORD')
+// }
 
-repositories {
-    maven {
-        url = uri("https://maven.pkg.github.com/Manchester-Central/CHAOS-Shared-Code")
-        credentials {
-            username = sharedCodeUsername
-            password = sharedCodePassword
-        }
-    }
-}
+// repositories {
+//     maven {
+//         url = uri("https://maven.pkg.github.com/Manchester-Central/CHAOS-Shared-Code")
+//         credentials {
+//             username = sharedCodeUsername
+//             password = sharedCodePassword
+//         }
+//     }
+// }
 
 // Defining my dependencies. In this case, WPILib (+ friends), and vendor libraries.
 // Also defines JUnit 4.
@@ -114,7 +114,8 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-    implementation 'com.chaos131:shared:2025.0.16'
+    // implementation 'com.chaos131:shared:2025.0.16'
+    implementation project(':chaos-shared-code')
 
     def akitJson = new groovy.json.JsonSlurper().parseText(new File(projectDir.getAbsolutePath() + "/vendordeps/AdvantageKit.json").text)
     annotationProcessor "org.littletonrobotics.akit:akit-autolog:$akitJson.version"
