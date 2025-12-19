@@ -30,4 +30,4 @@ Properties props = System.getProperties();
 props.setProperty("org.gradle.internal.native.headers.unresolved.dependencies.ignore", "true");
 
 include ':chaos-shared-code'
-project(':chaos-shared-code').projectDir = file('chaos-shared-code')
+project(':chaos-shared-code').projectDir = file('CHAOS-Shared-Code')
