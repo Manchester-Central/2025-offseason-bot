@@ -15,16 +15,16 @@ import frc.robot.Robot;
 import frc.robot.Constants.GripperConstants;
 import frc.robot.Constants.ArmConstants.ArmPoses;
 import frc.robot.subsystems.Arm;
-import frc.robot.subsystems.Gripper;
+import frc.robot.subsystems.Launcher;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class ScoreCommand extends Command {
   private Arm m_arm;
-  private Gripper m_gripper;
+  private Launcher m_gripper;
   private double m_startTime;
 
   /** Creates a new ScorePrep. */
-  public ScoreCommand(Arm arm, Gripper gripper) {
+  public ScoreCommand(Arm arm, Launcher gripper) {
     m_arm = arm;
     m_gripper = gripper;
     // Use addRequirements() here to declare subsystem dependencies.
@@ -42,7 +42,7 @@ public class ScoreCommand extends Command {
   public void execute() {
     m_arm.setTargetAngle(ArmPoses.ScoreLowPose.get());
     if (m_arm.atTarget()) {
-      m_gripper.setGripSpeed(0.3);
+      //m_gripper.setGripSpeed(0.3);
     }
     if (Timer.getFPGATimestamp() - m_startTime > GripperConstants.AutoOuttakeTime.get().in(Seconds) && Robot.isSimulation()) {
       m_gripper.setCoralSim(false);
