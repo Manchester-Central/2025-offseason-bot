@@ -73,9 +73,13 @@ public final class Constants {
     public static final int ArmMotorCANID = 20;
     public static final int ArmCANcoderCANID = 21;
 
-    // Launcher (50s)
-    public static final int LauncherMotorCANIDLeft = 52;
-    public static final int LauncherMotorCANIDRight = 53; //TODO: Get real
+    // Intake (30s)
+    public static final int IntakeMotorCANID = 30;
+    public static final int KickerMotorCANID = 31;
+
+    // Launcher (40s)
+    public static final int LauncherMotorCANIDLeft = 40;
+    public static final int LauncherMotorCANIDRight = 41; //TODO: Get real
   }
 
   public static class GripperConstants {

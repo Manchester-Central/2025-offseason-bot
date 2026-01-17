@@ -6,18 +6,13 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Amps;
 
-import java.util.jar.Attributes.Name;
-
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
 
 import com.chaos131.util.DashboardNumber;
 import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.MotorArrangementValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
-import edu.wpi.first.math.filter.Debouncer;
-import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.CanIdentifiers;
@@ -28,6 +23,7 @@ import frc.robot.util.ChaosTalonFxsTuner;
 public class Launcher extends SubsystemBase {
   private ChaosTalonFxs m_launcherMotorLeft = new ChaosTalonFxs(CanIdentifiers.LauncherMotorCANIDLeft);
   private ChaosTalonFxs m_launcherMotorRight = new ChaosTalonFxs(CanIdentifiers.LauncherMotorCANIDRight);
+
   private ChaosTalonFxsTuner m_launcherTunerLeft = new ChaosTalonFxsTuner("Launcher", m_launcherMotorLeft);
   private ChaosTalonFxsTuner m_launcherTunerRight = new ChaosTalonFxsTuner("Launcher", m_launcherMotorRight);
 
@@ -35,7 +31,7 @@ public class Launcher extends SubsystemBase {
   private DashboardNumber m_rightLaunchSpeed = new DashboardNumber("rightLaunchSpeed", 0, true, null);
 
   //private static boolean m_hasCoralGripped = false;
- // private static boolean m_hasCoralGrippedSim = false;
+  // private static boolean m_hasCoralGrippedSim = false;
   //private Debouncer coralDebouncer = new Debouncer(0.5,DebounceType.kBoth);
   private DashboardNumber m_supplyCurrentLimitLeft = m_launcherTunerLeft.tunable(
       "SupplyCurrentLimitLeft", GripperConstants.SupplyCurrentLimit.in(Amps), (config, newValue) -> config.CurrentLimits.SupplyCurrentLimit = newValue);
@@ -91,11 +87,11 @@ public class Launcher extends SubsystemBase {
   }
 
   public double getLaunchSpeedRight() {
-    return m_launcherMotorRight.get();
+    return m_rightLaunchSpeed.get();
   }
 
   public double getSelectedLaunchSpeedLeft() {
-    return m_launcherMotorLeft.get();
+    return m_leftLaunchSpeed.get();
   }
 
   public double getSelectedLaunchSpeedRight() {

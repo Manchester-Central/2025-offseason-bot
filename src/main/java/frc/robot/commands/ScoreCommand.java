@@ -6,9 +6,6 @@ package frc.robot.commands;
 
 import static edu.wpi.first.units.Units.Seconds;
 
-import java.util.concurrent.TimeUnit;
-
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Robot;

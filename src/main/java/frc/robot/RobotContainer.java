@@ -196,7 +196,7 @@ public class RobotContainer {
 
     // Gripper Default
     m_launcher.setDefaultCommand(new RunCommand(() -> m_launcher.setLaunchSpeedLeft(0), m_launcher).alongWith(new RunCommand(() -> m_launcher.setLaunchSpeedRight(0), m_launcher)));
-    m_intake.setDefaultCommand(new RunCommand(() -> m_intake.setIntakeSpeed(0), m_intake));
+    m_intake.setDefaultCommand(new RunCommand(() -> m_intake.setIntakeSpeed(0, 0), m_intake));
 
 
     // Lock to 0° when A button is held
@@ -258,7 +258,7 @@ public class RobotContainer {
     //m_operator.povDown().onTrue(new InstantCommand(() -> m_scoringHigh = false));
     m_driver.leftBumper().whileTrue(new InstantCommand(() -> m_launcher.setLaunchSpeedLeft(m_launcher.getSelectedLaunchSpeedLeft())));
     m_driver.rightBumper().whileTrue(new InstantCommand(() -> m_launcher.setLaunchSpeedRight(m_launcher.getSelectedLaunchSpeedRight())));
-    m_driver.rightTrigger().whileTrue(new InstantCommand(() -> m_intake.setIntakeSpeed(m_intake.getSelectedIntakeSpeed()))); 
+    m_driver.rightTrigger().whileTrue(new InstantCommand(() -> m_intake.setIntakeSpeed(m_intake.getSelectedIntakeSpeed(), m_intake.getSelectedKickerSpeed()))); 
   }
 
   /**
