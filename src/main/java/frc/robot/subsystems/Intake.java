@@ -25,8 +25,8 @@ public class Intake extends SubsystemBase {
   private ChaosTalonFxsTuner m_intakeTuner = new ChaosTalonFxsTuner("Intake", m_intakeMotor);
   private ChaosTalonFxsTuner m_kickerTuner = new ChaosTalonFxsTuner("Kicker", m_kickerMotor);
 
-  private DashboardNumber m_intakeSpeed = new DashboardNumber("IntakeSpeed", 0, true, null);
-  private DashboardNumber m_kickerSpeed = new DashboardNumber("KickerSpeed", 0, true, null);
+  private DashboardNumber m_intakeSpeed = new DashboardNumber("IntakeSpeed", 0.2, true, (x) -> {});
+  private DashboardNumber m_kickerSpeed = new DashboardNumber("KickerSpeed", 0.2, true, (x) -> {});
 
   private DashboardNumber m_supplyCurrentLimitIntake = m_intakeTuner.tunable(
       "SupplyCurrentLimitIntake", GripperConstants.SupplyCurrentLimit.in(Amps), (config, newValue) -> config.CurrentLimits.SupplyCurrentLimit = newValue);
@@ -51,7 +51,7 @@ public class Intake extends SubsystemBase {
     m_kickerMotor.Configuration.CurrentLimits.SupplyCurrentLimit = m_supplyCurrentLimitKicker.get();
     
     m_intakeMotor.Configuration.MotorOutput.Inverted = InvertedValue.Clockwise_Positive; //TODO: double check this :3
-    m_kickerMotor.Configuration.MotorOutput.Inverted = InvertedValue.Clockwise_Positive; //TODO: double check this
+    m_kickerMotor.Configuration.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive; //TODO: double check this
 
     m_intakeMotor.Configuration.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     m_kickerMotor.Configuration.MotorOutput.NeutralMode = NeutralModeValue.Coast;

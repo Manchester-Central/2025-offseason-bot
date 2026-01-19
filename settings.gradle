@@ -26,5 +26,8 @@ pluginManagement {
     }
 }
 
+include ':chaos-shared-code'
+project(':chaos-shared-code').projectDir = new File("CHAOS-Shared-Code")
+
 Properties props = System.getProperties();
 props.setProperty("org.gradle.internal.native.headers.unresolved.dependencies.ignore", "true");

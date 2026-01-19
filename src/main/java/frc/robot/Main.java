@@ -14,7 +14,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.RobotBase;
-import frc.robot.util.FieldPoint;
+// import frc.robot.util.FieldPoint;
 
 /**
  * Do NOT add any static variables to this class, or any initialization at all. Unless you know what
@@ -30,7 +30,7 @@ public final class Main {
    * <p>If you change your main robot class, change the parameter type.
    */
   public static void main(String... args) {
-    FieldPoint.loadAprilTagData();
+    // FieldPoint.loadAprilTagData();
     RobotBase.startRobot(Robot::new);
   }
 }

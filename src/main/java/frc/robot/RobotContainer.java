@@ -48,8 +48,8 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
-import frc.robot.util.FieldPoint;
-import frc.robot.util.PathUtil;
+// import frc.robot.util.FieldPoint;
+// import frc.robot.util.PathUtil;
 import frc.robot.util.DriveDirection;
 
 import static edu.wpi.first.units.Units.Degrees;
@@ -75,7 +75,7 @@ public class RobotContainer {
   // Subsystems
   private final Quest m_quest;
   private final Drive m_swerveDrive;
-  // private final Launcher m_launcher;
+  private final Launcher m_launcher;
   // private final Arm m_arm;
   private final Intake m_intake;
 
@@ -101,11 +101,11 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // m_arm = new Arm(m_armLigament);
-    // m_launcher = new Launcher(m_gripperLigament); 
+    m_launcher = new Launcher(m_gripperLigament); 
     m_intake = new Intake();
 
-    @SuppressWarnings("unused")
-    FieldPoint _dummy = FieldPoint.ReefPose10;
+    // @SuppressWarnings("unused")
+    // FieldPoint _dummy = FieldPoint.ReefPose10;
     switch (Constants.currentMode) {
       case REAL:
         // Real robot, instantiate hardware IO implementations
@@ -147,7 +147,7 @@ public class RobotContainer {
     // NamedCommands.registerCommand("HPIntake", new HPIntakeCommand(m_arm, m_launcher));
     // NamedCommands.registerCommand("ScorePrep", new ScorePrepCommand(m_arm, m_launcher));
     // NamedCommands.registerCommand("Score", new ScoreCommand(m_arm, m_launcher));
-    NamedCommands.registerCommand("ReefAutoAlign", PathUtil.driveToClosestPointTeleopCommandV2(FieldPoint.getReefDrivePoses(), m_swerveDrive));
+    // NamedCommands.registerCommand("ReefAutoAlign", PathUtil.driveToClosestPointTeleopCommandV2(FieldPoint.getReefDrivePoses(), m_swerveDrive));
 
     m_autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
@@ -195,7 +195,7 @@ public class RobotContainer {
     // m_arm.setDefaultCommand(new RunCommand(() -> m_arm.setSpeed(m_operator.getLeftY() * 0.5), m_arm));
 
     // Gripper Default
-    // m_launcher.setDefaultCommand(new RunCommand(() -> m_launcher.setLaunchSpeedLeft(0), m_launcher).alongWith(new RunCommand(() -> m_launcher.setLaunchSpeedRight(0), m_launcher)));
+    m_launcher.setDefaultCommand(new RunCommand(() -> m_launcher.setLaunchSpeedLeft(0), m_launcher).alongWith(new RunCommand(() -> m_launcher.setLaunchSpeedRight(0))));
     m_intake.setDefaultCommand(new RunCommand(() -> m_intake.setIntakeSpeed(0, 0), m_intake));
 
 
@@ -256,9 +256,9 @@ public class RobotContainer {
 
    //m_operator.povUp().onTrue(new InstantCommand(() -> m_scoringHigh = true));
     //m_operator.povDown().onTrue(new InstantCommand(() -> m_scoringHigh = false));
-    // m_driver.leftBumper().whileTrue(new InstantCommand(() -> m_launcher.setLaunchSpeedLeft(m_launcher.getSelectedLaunchSpeedLeft())));
-    // m_driver.rightBumper().whileTrue(new InstantCommand(() -> m_launcher.setLaunchSpeedRight(m_launcher.getSelectedLaunchSpeedRight())));
-    m_driver.leftTrigger().whileTrue(new InstantCommand(() -> m_intake.setIntakeSpeed(m_intake.getSelectedIntakeSpeed(), m_intake.getSelectedKickerSpeed()))); 
+    m_driver.leftBumper().whileTrue(new RunCommand(() -> m_launcher.setLaunchSpeedLeft(m_launcher.getSelectedLaunchSpeedLeft()), m_launcher));
+    m_driver.rightBumper().whileTrue(new RunCommand(() -> m_launcher.setLaunchSpeedRight(m_launcher.getSelectedLaunchSpeedRight()), m_launcher));
+    m_driver.leftTrigger().whileTrue(new RunCommand(() -> m_intake.setIntakeSpeed(m_intake.getSelectedIntakeSpeed(), m_intake.getSelectedKickerSpeed()), m_intake)); 
   }
 
   /**

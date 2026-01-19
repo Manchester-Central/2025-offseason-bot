@@ -10,6 +10,7 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
 
 import com.chaos131.util.DashboardNumber;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
@@ -27,8 +28,10 @@ public class Launcher extends SubsystemBase {
   private ChaosTalonFxsTuner m_launcherTunerLeft = new ChaosTalonFxsTuner("Launcher", m_launcherMotorLeft);
   private ChaosTalonFxsTuner m_launcherTunerRight = new ChaosTalonFxsTuner("Launcher", m_launcherMotorRight);
 
-  private DashboardNumber m_leftLaunchSpeed = new DashboardNumber("leftLaunchSpeed", 0, true, null);
-  private DashboardNumber m_rightLaunchSpeed = new DashboardNumber("rightLaunchSpeed", 0, true, null);
+  private VelocityVoltage m_velocity = new VelocityVoltage(0);
+
+  private DashboardNumber m_launchSpeedRPS = new DashboardNumber("LaunchSpeedClosed", 0.1, true, (x) -> {});
+  private DashboardNumber m_launchSpeedOpenLoop = new DashboardNumber("LaunchSpeedOpen", 0.1, true, (x) -> {});
 
   //private static boolean m_hasCoralGripped = false;
   // private static boolean m_hasCoralGrippedSim = false;
@@ -44,6 +47,11 @@ public class Launcher extends SubsystemBase {
       "StatorCurrentLimitRight", GripperConstants.StatorCurrentLimit.in(Amps), (config, newValue) -> config.CurrentLimits.StatorCurrentLimit = newValue);
   
       private LoggedMechanismLigament2d m_ligament;
+    
+  private DashboardNumber m_p = m_launcherTunerRight.tunable("LauncherP", 0.0, (config, newValue) -> config.Slot0.kP = newValue);
+  private DashboardNumber m_i = m_launcherTunerRight.tunable("LauncherI", 0.0, (config, newValue) -> config.Slot0.kI = newValue);
+  private DashboardNumber m_d = m_launcherTunerRight.tunable("LauncherD", 0.0, (config, newValue) -> config.Slot0.kD = newValue);
+  private DashboardNumber m_s = m_launcherTunerRight.tunable("LauncherS", 0.0, (config, newValue) -> config.Slot0.kS = newValue);
 
   /** Creates a new Gripper. */
   public Launcher(LoggedMechanismLigament2d ligament) {
@@ -62,11 +70,15 @@ public class Launcher extends SubsystemBase {
     // m_gripperMotor.Configuration.CurrentLimits.SupplyCurrentLowerLimit = GripperConstants.CoralSupplyCurrentLowerLimit.in(Amps);
     // m_gripperMotor.Configuration.CurrentLimits.SupplyCurrentLowerTime = GripperConstants.CoralSupplyCurrentLowerTime.in(Seconds);
     m_launcherMotorLeft.Configuration.MotorOutput.Inverted = InvertedValue.Clockwise_Positive; //TODO: double check this :3
-    m_launcherMotorRight.Configuration.MotorOutput.Inverted = InvertedValue.Clockwise_Positive; //TODO: this too :D
+    m_launcherMotorRight.Configuration.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive; //TODO: this too :D
 
 
     m_launcherMotorLeft.Configuration.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     m_launcherMotorRight.Configuration.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+
+    m_velocity.Slot = 0;
+    m_launcherMotorRight.setControl(m_velocity.withVelocity(50));
+    
     m_launcherMotorLeft.applyConfig();
     m_launcherMotorRight.applyConfig();
   }
@@ -75,11 +87,11 @@ public class Launcher extends SubsystemBase {
    * Sets the speed [-1.0, 1.0] of the coral gripper.
    */
   public void setLaunchSpeedLeft(double newSpeed) {
-    m_launcherMotorLeft.set(newSpeed);
+    m_launcherMotorRight.set(newSpeed);
   }
 
   public void setLaunchSpeedRight(double newSpeed) {
-    m_launcherMotorRight.set(newSpeed);
+    m_launcherMotorRight.setControl(m_velocity.withVelocity(newSpeed));
   }
 
   public double getLaunchSpeedLeft() {
@@ -87,15 +99,15 @@ public class Launcher extends SubsystemBase {
   }
 
   public double getLaunchSpeedRight() {
-    return m_rightLaunchSpeed.get();
+    return m_launcherMotorRight.get();
   }
 
   public double getSelectedLaunchSpeedLeft() {
-    return m_leftLaunchSpeed.get();
+    return m_launchSpeedOpenLoop.get();
   }
 
   public double getSelectedLaunchSpeedRight() {
-    return m_launcherMotorRight.get();
+  return m_launchSpeedRPS.get();
   }
 
 
