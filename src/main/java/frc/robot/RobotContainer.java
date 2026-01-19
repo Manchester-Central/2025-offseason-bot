@@ -34,11 +34,11 @@ import frc.robot.Constants.GeneralConstants;
 import frc.robot.Constants.GripperConstants;
 import frc.robot.Constants.ArmConstants.ArmPoses;
 import frc.robot.commands.DriveCommands;
-import frc.robot.commands.HPIntakeCommand;
-import frc.robot.commands.ScoreCommand;
-import frc.robot.commands.ScorePrepCommand;
+// import frc.robot.commands.HPIntakeCommand;
+// import frc.robot.commands.ScoreCommand;
+// import frc.robot.commands.ScorePrepCommand;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.Arm;
+// import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Launcher;
 import frc.robot.subsystems.Quest;
@@ -75,8 +75,8 @@ public class RobotContainer {
   // Subsystems
   private final Quest m_quest;
   private final Drive m_swerveDrive;
-  private final Launcher m_launcher;
-  private final Arm m_arm;
+  // private final Launcher m_launcher;
+  // private final Arm m_arm;
   private final Intake m_intake;
 
   // Controller
@@ -100,8 +100,8 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    m_arm = new Arm(m_armLigament);
-    m_launcher = new Launcher(m_gripperLigament);
+    // m_arm = new Arm(m_armLigament);
+    // m_launcher = new Launcher(m_gripperLigament); 
     m_intake = new Intake();
 
     @SuppressWarnings("unused")
@@ -144,9 +144,9 @@ public class RobotContainer {
     m_swerveDrive.setQuest(m_quest);
 
     // Set up auto routines
-    NamedCommands.registerCommand("HPIntake", new HPIntakeCommand(m_arm, m_launcher));
-    NamedCommands.registerCommand("ScorePrep", new ScorePrepCommand(m_arm, m_launcher));
-    NamedCommands.registerCommand("Score", new ScoreCommand(m_arm, m_launcher));
+    // NamedCommands.registerCommand("HPIntake", new HPIntakeCommand(m_arm, m_launcher));
+    // NamedCommands.registerCommand("ScorePrep", new ScorePrepCommand(m_arm, m_launcher));
+    // NamedCommands.registerCommand("Score", new ScoreCommand(m_arm, m_launcher));
     NamedCommands.registerCommand("ReefAutoAlign", PathUtil.driveToClosestPointTeleopCommandV2(FieldPoint.getReefDrivePoses(), m_swerveDrive));
 
     m_autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -191,11 +191,11 @@ public class RobotContainer {
     m_swerveDrive.setDefaultCommand(getDefaultSwerveCommand());
 
     // Manual Arm Control
-    m_arm.setDefaultCommand(new RunCommand(() -> m_arm.setTargetAngle(m_launcher.hasCoral() ? ArmPoses.CoralGrippedPose.get() : ArmPoses.StowPose.get()), m_arm));
+    // m_arm.setDefaultCommand(new RunCommand(() -> m_arm.setTargetAngle(m_launcher.hasCoral() ? ArmPoses.CoralGrippedPose.get() : ArmPoses.StowPose.get()), m_arm));
     // m_arm.setDefaultCommand(new RunCommand(() -> m_arm.setSpeed(m_operator.getLeftY() * 0.5), m_arm));
 
     // Gripper Default
-    m_launcher.setDefaultCommand(new RunCommand(() -> m_launcher.setLaunchSpeedLeft(0), m_launcher).alongWith(new RunCommand(() -> m_launcher.setLaunchSpeedRight(0), m_launcher)));
+    // m_launcher.setDefaultCommand(new RunCommand(() -> m_launcher.setLaunchSpeedLeft(0), m_launcher).alongWith(new RunCommand(() -> m_launcher.setLaunchSpeedRight(0), m_launcher)));
     m_intake.setDefaultCommand(new RunCommand(() -> m_intake.setIntakeSpeed(0, 0), m_intake));
 
 
@@ -256,9 +256,9 @@ public class RobotContainer {
 
    //m_operator.povUp().onTrue(new InstantCommand(() -> m_scoringHigh = true));
     //m_operator.povDown().onTrue(new InstantCommand(() -> m_scoringHigh = false));
-    m_driver.leftBumper().whileTrue(new InstantCommand(() -> m_launcher.setLaunchSpeedLeft(m_launcher.getSelectedLaunchSpeedLeft())));
-    m_driver.rightBumper().whileTrue(new InstantCommand(() -> m_launcher.setLaunchSpeedRight(m_launcher.getSelectedLaunchSpeedRight())));
-    m_driver.rightTrigger().whileTrue(new InstantCommand(() -> m_intake.setIntakeSpeed(m_intake.getSelectedIntakeSpeed(), m_intake.getSelectedKickerSpeed()))); 
+    // m_driver.leftBumper().whileTrue(new InstantCommand(() -> m_launcher.setLaunchSpeedLeft(m_launcher.getSelectedLaunchSpeedLeft())));
+    // m_driver.rightBumper().whileTrue(new InstantCommand(() -> m_launcher.setLaunchSpeedRight(m_launcher.getSelectedLaunchSpeedRight())));
+    m_driver.leftTrigger().whileTrue(new InstantCommand(() -> m_intake.setIntakeSpeed(m_intake.getSelectedIntakeSpeed(), m_intake.getSelectedKickerSpeed()))); 
   }
 
   /**
@@ -273,22 +273,22 @@ public class RobotContainer {
   public void logMech3d() {
     // Robot specific parts
     Pose3d[] parts = {
-      new Pose3d(),
-      new Pose3d(new Translation3d(0, 0, m_originToPivot.getLength()),
-                 new Rotation3d(Degrees.of(0), m_arm.getCurrentAngle().times(-1), Degrees.of(0))),
+      // new Pose3d(),
+      // new Pose3d(new Translation3d(0, 0, m_originToPivot.getLength()),
+      //            new Rotation3d(Degrees.of(0), m_arm.getCurrentAngle().times(-1), Degrees.of(0))),
     };
     // Note, the arm's angle is multiplied by -1 because RollPitchYaw uses slightly different directions
     // than many think are intuitive, +pitch is actually down because of the left facing +y direction
-    Logger.recordOutput("Mech3d", parts);
+    // Logger.recordOutput("Mech3d", parts);
 
-    // Coral held by the robot (shown as game piece), must be in field relative coordinate frame
-    Pose3d[] held_coral_position = {};
-    if (m_launcher.hasCoral()) {
-      held_coral_position = new Pose3d[]{
-        // Insert Mech2d forward kinematics to get orientation, for now plot it at the origin
-        new Pose3d(new Translation3d(0,0,2.0), new Rotation3d())
-      };
-    } 
-    Logger.recordOutput("heldCoralPosition", held_coral_position);
+    // // Coral held by the robot (shown as game piece), must be in field relative coordinate frame
+    // Pose3d[] held_coral_position = {};
+    // if (m_launcher.hasCoral()) {
+    //   held_coral_position = new Pose3d[]{
+    //     // Insert Mech2d forward kinematics to get orientation, for now plot it at the origin
+    //     new Pose3d(new Translation3d(0,0,2.0), new Rotation3d())
+    //   };
+    // } 
+    // Logger.recordOutput("heldCoralPosition", held_coral_position);
   }
 }
