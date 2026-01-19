@@ -1,0 +1,3 @@
+[submodule "CHAOS-Shared-Code"]
+	path = CHAOS-Shared-Code
+	url = git@github.com:Manchester-Central/CHAOS-Shared-Code.git
